@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Trek_Booking_DataAccess;
+using Trek_Booking_Hotel_3D_API.Helper;
 using Trek_Booking_Repository.Repositories.IRepositories;
 
 namespace Trek_Booking_Hotel_3D_API.Controllers
@@ -11,10 +12,12 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
     public class TourAPIController : ControllerBase
     {
         private readonly ITourRepository _repository;
+        private readonly AuthMiddleWare _authMiddleWare;
 
-        public TourAPIController(ITourRepository repository)
+        public TourAPIController(ITourRepository repository, AuthMiddleWare authMiddleWare)
         {
             _repository = repository;
+            _authMiddleWare = authMiddleWare;
         }
         [HttpGet("/getTours")]
         public async Task<IActionResult> getTours()
@@ -36,15 +39,25 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             }
             return Ok(check);
         }
-        [HttpGet("/getTourBySupplierId/{supplierId}")]
-        public async Task<IActionResult> getTourBySupplierId(int supplierId)
+        [HttpGet("/getTourBySupplierId")]
+        public async Task<IActionResult> getTourBySupplierId()
         {
-            var check = await _repository.getTourBySupplierId(supplierId);
-            if (check == null)
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            if (supplierId != null && supplierId != 0)
             {
-                return NotFound("Not Found");
+                var check = await _repository.getTourBySupplierId(supplierId.Value);
+                if (check == null)
+                {
+                    return NotFound("Not Found");
+                }
+                return Ok(check);
             }
-            return Ok(check);
+            else
+            {
+                return BadRequest(403);
+            }
+
+            
         }
         [HttpPost("/createTour")]
         public async Task<IActionResult> createTour([FromBody] Tour tour)

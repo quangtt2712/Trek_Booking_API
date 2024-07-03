@@ -34,15 +34,19 @@ namespace Trek_Booking_DataAccess
 
         public string? PaymentIntentId { get; set; }
 
-    
+
         public string? FullName { get; set; }
 
-     
+
         public string? Email { get; set; }
 
 
         public string? Phone { get; set; }
 
         public string? Requirement { get; set; }
+
+        public string? Process { get; set; }
+
+        public bool Completed { get; set; }
     }
 }

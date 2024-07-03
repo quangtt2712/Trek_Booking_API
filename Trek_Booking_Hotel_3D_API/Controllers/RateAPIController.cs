@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Trek_Booking_DataAccess;
+using Trek_Booking_Hotel_3D_API.Helper;
 using Trek_Booking_Repository.Repositories.IRepositories;
 
 namespace Trek_Booking_Hotel_3D_API.Controllers
@@ -9,9 +10,11 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
     public class RateAPIController : ControllerBase
     {
         private readonly IRateRepository _repository;
-        public RateAPIController(IRateRepository repository)
+        private readonly AuthMiddleWare _authMiddleWare;
+        public RateAPIController(IRateRepository repository, AuthMiddleWare authMiddleWare)
         {
             _repository = repository;
+            _authMiddleWare = authMiddleWare;
         }
 
         [HttpPost("/rateHotel")]
@@ -36,15 +39,25 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
 
 
 
-        [HttpGet("/getRateByUserId/{userId}")]
-        public async Task<IActionResult> getRateByUserId(int userId)
+        [HttpGet("/getRateByUserId")]
+        public async Task<IActionResult> getRateByUserId()
         {
-            var rates = await _repository.getRateByUserId(userId);
-            if (rates == null)
+            var userId = _authMiddleWare.GetUserIdFromToken(HttpContext);
+            if (userId != null && userId != 0)
             {
-                return NotFound("Not Found"); // Return OK with null data if no rates found
+                var rates = await _repository.getRateByUserId(userId.Value);
+                if (rates == null)
+                {
+                    return NotFound("Not Found");
+                }
+                return Ok(rates);
             }
-            return Ok(rates);
+            else
+            {
+                return BadRequest(403);
+            }
+
+
         }
 
         //Total rate of hotel

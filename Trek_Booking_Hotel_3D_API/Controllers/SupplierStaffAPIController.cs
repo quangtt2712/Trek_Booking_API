@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Trek_Booking_DataAccess;
+using Trek_Booking_Hotel_3D_API.Helper;
 using Trek_Booking_Hotel_3D_API.Service;
 using Trek_Booking_Repository.Repositories;
 using Trek_Booking_Repository.Repositories.IRepositories;
@@ -15,16 +16,18 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
         private readonly IRoleRepository _roleRepository;
         private readonly IAuthenticationUserRepository _authenticationUserRepository;
         private readonly ISupplierRepository _supplierRepository;
+        private readonly AuthMiddleWare _authMiddleWare;
 
 
         public SupplierStaffAPIController(ISupplierStaffRepository repository, IJwtUtils jwtUtils,
-            IRoleRepository roleRepository, IAuthenticationUserRepository authenticationUserRepository, ISupplierRepository supplierRepository)
+            IRoleRepository roleRepository, IAuthenticationUserRepository authenticationUserRepository, ISupplierRepository supplierRepository, AuthMiddleWare authMiddleWare)
         {
             _repository = repository;
             _jwtUtils = jwtUtils;
             _roleRepository = roleRepository;
             _authenticationUserRepository = authenticationUserRepository;
             _supplierRepository = supplierRepository;
+            _authMiddleWare = authMiddleWare;
         }
 
         [HttpPut("ToggleSupplierStaff")]
@@ -52,15 +55,24 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             }
             return Ok(check);
         }
-        [HttpGet("/getSupplierStaffBySupplierId/{supplierId}")]
-        public async Task<IActionResult> getSupplierStaffBySupplierId(int supplierId)
+        [HttpGet("/getSupplierStaffBySupplierId")]
+        public async Task<IActionResult> getSupplierStaffBySupplierId()
         {
-            var check = await _repository.getSupplierStaffBySupplierId(supplierId);
-            if (check == null)
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            if (supplierId != null && supplierId != 0)
             {
-                return NotFound("Not Found");
+                var check = await _repository.getSupplierStaffBySupplierId(supplierId.Value);
+                if (check == null)
+                {
+                    return NotFound("Not Found");
+                }
+                return Ok(check);
             }
-            return Ok(check);
+            else
+            {
+                return BadRequest(403);
+            }
+                
         }
         [HttpPost("/createSupplierStaff")]
         public async Task<IActionResult> createSupplier([FromBody] SupplierStaff supplierStaff)

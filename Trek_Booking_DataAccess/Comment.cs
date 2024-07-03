@@ -16,7 +16,7 @@ namespace Trek_Booking_DataAccess
         public int CommentId { get; set; }
         [ForeignKey("Booking")]
         public int BookingId { get; set; }
-        
+
         public Booking? Booking { get; set; }
 
         [Required(ErrorMessage = "Message is not null")]
@@ -26,12 +26,12 @@ namespace Trek_Booking_DataAccess
 
         [ForeignKey("Hotel")]
         public int HotelId { get; set; }
-        
+
         public Hotel? Hotel { get; set; }
 
         [ForeignKey("User")]
         public int UserId { get; set; }
-        
+
         public User? User { get; set; }
 
     }

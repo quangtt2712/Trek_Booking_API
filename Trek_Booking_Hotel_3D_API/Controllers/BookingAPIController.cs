@@ -73,21 +73,12 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
         [HttpPost("/createBooking")]
         public async Task<IActionResult> createBooking([FromBody] Booking booking)
         {
-            try
-            {
-                var bookingCartExists = await _repository.checkBookingExists(booking.UserId, booking.RoomId);
-                if (bookingCartExists)
-                {
-                    return BadRequest("BookingCart already exists for the specified userId and roomId");
-                }
-
+            
+                
                 await _repository.createBooking(booking);
                 return StatusCode(201, "Create Successfully!");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("User or Room not exits");
-            }
+            
+            
         }
 
         [HttpPut("/deleteBooking/{bookingId}")]

@@ -21,7 +21,7 @@ public class OrderHotelDetail
 
     public string? HotelName { get; set; }
 
-    
+
     public double? Price { get; set; }
     public int? RoomQuantity { get; set; }
 }

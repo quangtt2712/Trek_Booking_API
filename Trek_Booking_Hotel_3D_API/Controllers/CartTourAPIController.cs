@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Trek_Booking_DataAccess;
+using Trek_Booking_Hotel_3D_API.Helper;
 using Trek_Booking_Repository.Repositories.IRepositories;
 
 namespace Trek_Booking_Hotel_3D_API.Controllers
@@ -10,10 +11,11 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
     public class CartTourAPIController : ControllerBase
     {
         private readonly ICartTourRepository _repository;
-
-        public CartTourAPIController(ICartTourRepository repository)
+        private readonly AuthMiddleWare _authMiddleWare;
+        public CartTourAPIController(ICartTourRepository repository, AuthMiddleWare authMiddleWare)
         {
             _repository = repository;
+            _authMiddleWare = authMiddleWare;
         }
 
         [HttpGet("/getCartTours")]
@@ -38,15 +40,24 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             return Ok(check);
         }
 
-        [HttpGet("/getCartTourByUserId/{userId}")]
-        public async Task<IActionResult> getCartTourByUserId(int userId)
+        [HttpGet("/getCartTourByUserId")]
+        public async Task<IActionResult> getCartTourByUserId()
         {
-            var check = await _repository.getCartTourByUserId(userId);
-            if (check == null)
+            var userId = _authMiddleWare.GetUserIdFromToken(HttpContext);
+            if (userId != null && userId != 0)
             {
-                return NotFound("Not Found");
+                var check = await _repository.getCartTourByUserId(userId.Value);
+                if (check == null)
+                {
+                    return NotFound("Not Found");
+                }
+                return Ok(check);
             }
-            return Ok(check);
+            else
+            {
+                return BadRequest(403);
+            }
+           
         }
 
         [HttpGet("/getCartTourByTourId/{tourId}")]

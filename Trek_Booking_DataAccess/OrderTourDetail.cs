@@ -19,10 +19,10 @@ namespace Trek_Booking_DataAccess
         [ForeignKey("Tour")]
         public int TourId { get; set; }
         public Tour? Tour { get; set; }
-         public string? TourName { get; set; }
+        public string? TourName { get; set; }
 
         public int TourOrderQuantity { get; set; }
-     
+
         public decimal TourTotalPrice { get; set; }
 
     }

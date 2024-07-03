@@ -122,6 +122,101 @@ namespace YourNamespace.Controllers
             }
         }
 
+        [HttpPost("/StripePayment/CreateTour")]
+        public async Task<IActionResult> CreateTour([FromBody] StripePaymentTourDTO paymentDTO)
+        {
+            try
+            {
+                // Log dữ liệu nhận được để kiểm tra
+                Console.WriteLine(JsonConvert.SerializeObject(paymentDTO));
+
+                var domain = _configuration.GetValue<string>("Trekbooking_Client_URL");
+
+                var options = new Stripe.Checkout.SessionCreateOptions
+                {
+                    SuccessUrl = domain + paymentDTO.SuccessUrl,
+                    CancelUrl = domain + paymentDTO.CancelUrl,
+                    LineItems = new List<Stripe.Checkout.SessionLineItemOptions>(),
+                    Mode = "payment",
+                    PaymentMethodTypes = new List<string> { "card" }
+                };
+
+                // Sử dụng OrderHeader để lấy tổng giá
+                var totalPrice = paymentDTO.Order.OrderHeader.TotalPrice;
+
+
+                var TourNames = paymentDTO.Order.OrderDetails.Select(d => $"Tour Name: {d.TourName}").ToList();
+                var combinedNames = string.Join(", ", TourNames);
+
+                var sessionLineItem = new Stripe.Checkout.SessionLineItemOptions
+                {
+                    PriceData = new Stripe.Checkout.SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)(totalPrice * 100), // Tổng giá đã tính sẵn
+                        Currency = "usd",
+                        ProductData = new Stripe.Checkout.SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = combinedNames // Tên phòng và tên khách sạn kết hợp
+                        }
+                    },
+                    Quantity = 1
+                };
+                options.LineItems.Add(sessionLineItem);
+
+                var service = new Stripe.Checkout.SessionService();
+                var session = await service.CreateAsync(options);
+
+                // Gọi hàm lưu đơn hàng sau khi thanh toán thành công
+                paymentDTO.Order.OrderHeader.SessionId = session.Id;
+                paymentDTO.Order.OrderHeader.PaymentIntentId = session.PaymentIntentId;
+
+                // Giả sử bạn muốn lưu trường Requirement từ phía client
+                // paymentDTO.Order.OrderHeader.Requirement = paymentDTO.Order.OrderHeader.Requirement;
+
+                var createdOrder = await _orderRepository.CreateTour(paymentDTO.Order);
+                foreach (var detail in paymentDTO.Order.OrderDetails)
+                {
+                    await ClearCartTour(detail.TourId);
+                }
+
+                return Ok(new SuccessModelDTO
+                {
+                    Data = session.Id
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+                return BadRequest(new ErrorModelDTO
+                {
+                    ErrorMessage = ex.Message,
+                });
+            }
+        }
+
+
+        private async Task ClearCartTour(int tourId)
+        {
+            try
+            {
+                var cartItem = _context.cartTours.FirstOrDefault(ct => ct.TourId == tourId);
+                if (cartItem != null)
+                {
+                    _context.cartTours.Remove(cartItem);
+                    await _context.SaveChangesAsync();
+                    _logger.LogInformation("CartTour cleared successfully for tourId: {tourId}", tourId);
+                }
+                else
+                {
+                    _logger.LogWarning("CartTour item not found for tourId: {tourId}", tourId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error clearing CartTour: {message}", ex.Message);
+            }
+        }
+
 
     }
 }

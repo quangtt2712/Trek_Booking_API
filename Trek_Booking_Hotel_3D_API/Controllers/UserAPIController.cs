@@ -41,12 +41,20 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
         public async Task<IActionResult> getUserById()
         {
             var userId = _authMiddleWare.GetUserIdFromToken(HttpContext);
-            var check = await _repository.getUserById(userId.Value);
-            if (check == null)
+            if (userId != null && userId != 0)
             {
-                return NotFound("Not Found");
+                var check = await _repository.getUserById(userId.Value);
+                if (check == null)
+                {
+                    return NotFound("Not Found");
+                }
+                return Ok(check);
             }
-            return Ok(check);
+            else
+            {
+                return BadRequest(403);
+            }
+            
         }
 
         [HttpGet("/getUserByRoleId/{roleId}")]

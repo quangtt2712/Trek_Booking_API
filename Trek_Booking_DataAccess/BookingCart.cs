@@ -17,20 +17,20 @@ namespace Trek_Booking_DataAccess
 
         [ForeignKey("User")]
         public int UserId { get; set; }
-       
+
         public User? User { get; set; }
 
 
         [ForeignKey("Hotel")]
         public int HotelId { get; set; }
-        
+
         public Hotel? Hotel { get; set; }
 
 
 
         [ForeignKey("Room")]
         public int RoomId { get; set; }
-        
+
         public Room? Room { get; set; }
 
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Trek_Booking_DataAccess;
 using Trek_Booking_DataAccess.Data;
+using Trek_Booking_Hotel_3D_API.Helper;
 using Trek_Booking_Repository.Repositories.IRepositories;
 
 namespace Trek_Booking_Hotel_3D_API.Controllers
@@ -10,9 +11,11 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
     public class CommentAPIController : ControllerBase
     {
         private readonly ICommentRepository _repository;
-        public CommentAPIController(ICommentRepository repository)
+        private readonly AuthMiddleWare _authMiddleWare;
+        public CommentAPIController(ICommentRepository repository, AuthMiddleWare authMiddleWare)
         {
             _repository = repository;
+            _authMiddleWare = authMiddleWare;
         }
 
         [HttpPost("/createComment")]
@@ -40,15 +43,24 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
 
 
 
-        [HttpGet("/getCommentByUserId/{userId}")]
-        public async Task<IActionResult> getCommentByUserId(int userId)
+        [HttpGet("/getCommentByUserId")]
+        public async Task<IActionResult> getCommentByUserId()
         {
-            var comments = await _repository.getCommentByUserId(userId);
-            if(comments == null)
+            var userId = _authMiddleWare.GetUserIdFromToken(HttpContext);
+          
+            if (userId != null && userId != 0)
             {
-                return NotFound("Not Found"); // Return OK with null data if no comments found
+                var comments = await _repository.getCommentByUserId(userId.Value);
+                if (comments == null)
+                {
+                    return NotFound("Not Found");
+                }
+                return Ok(comments);
             }
-            return Ok(comments);
+            else
+            {
+                return BadRequest(403);
+            }
         }
 
     }

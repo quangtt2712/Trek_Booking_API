@@ -100,9 +100,84 @@ namespace Trek_Booking_Repository.Repositories
             }
         }
 
+        public async Task<OrderTourDTO> CreateTour(OrderTourDTO objDTO)
+        {
+            try
+            {
+                // Tạo OrderHotelHeader từ objDTO.OrderHeader
+                var orderHeader = new OrderTourHeader
+                {
+                    UserId = objDTO.OrderHeader.UserId,
+                    TotalPrice = objDTO.OrderHeader.TotalPrice,
+                    TourOrderDate = objDTO.OrderHeader.TourOrderDate,
+                    SessionId = objDTO.OrderHeader.SessionId,
+                    PaymentIntentId = objDTO.OrderHeader.PaymentIntentId,
+                    FullName = objDTO.OrderHeader.FullName,
+                    Email = objDTO.OrderHeader.Email,
+                    Phone = objDTO.OrderHeader.Phone,
+                    Process = objDTO.OrderHeader.Process,
+                    Completed = objDTO.OrderHeader.Completed,
+                };
+
+                _context.OrderTourHeaders.Add(orderHeader);
+                await _context.SaveChangesAsync();
+
+                var orderDetails = new List<OrderTourDetail>();
+                foreach (var detail in objDTO.OrderDetails)
+                {
+                    // Tạo OrderHotelDetail từ objDTO.OrderDetails
+                    var orderDetail = new OrderTourDetail
+                    {
+                        OrderTourHeaderlId = orderHeader.Id,
+                        TourId = detail.TourId,
+                        TourName = detail.TourName,
+                        TourOrderQuantity = detail.TourOrderQuantity,
+                        TourTotalPrice = detail.TourTotalPrice,
+                    };
+                    orderDetails.Add(orderDetail);
+                    _context.OrderTourDetails.Add(orderDetail);
+                }
+                await _context.SaveChangesAsync();
+
+                // Chuẩn bị dữ liệu trả về
+                var result = new OrderTourDTO
+                {
+                    OrderHeader = new OrderTourHeader
+                    {
+                        Id = orderHeader.Id,
+                        UserId = orderHeader.UserId,
+                        TotalPrice = orderHeader.TotalPrice,
+                        TourOrderDate = orderHeader.TourOrderDate,
+                        SessionId = orderHeader.SessionId,
+                        PaymentIntentId = orderHeader.PaymentIntentId,
+                        FullName = orderHeader.FullName,
+                        Email = orderHeader.Email,
+                        Phone = orderHeader.Phone,
+                        Process = orderHeader.Process,
+                        Completed = orderHeader.Completed,
+                    },
+                    OrderDetails = orderDetails.Select(d => new OrderTourDetail
+                    {
+                        Id = d.Id,
+                        OrderTourHeaderlId = d.OrderTourHeaderlId,
+                        TourId = d.TourId,
+                        TourName = d.TourName,
+                        TourOrderQuantity = d.TourOrderQuantity,
+                        TourTotalPrice = d.TourTotalPrice,
+                    }).ToList()
+                };
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                // Xử lý ngoại lệ
+                throw new Exception("An error occurred while creating the order.", ex);
+            }
+        }
 
 
-       
+
 
     }
 }

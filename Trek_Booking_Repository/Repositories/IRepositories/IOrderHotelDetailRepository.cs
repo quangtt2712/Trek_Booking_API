@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Trek_Booking_DataAccess;
 
 namespace Trek_Booking_Repository.Repositories.IRepositories
 {
-    public interface IOrderRepository
+    public interface IOrderHotelDetailRepository
     {
-        Task<OrderDTO> Create(OrderDTO objDTO);
-        Task<OrderTourDTO> CreateTour(OrderTourDTO objDTO);
-
+        public Task<OrderHotelDetail> getOrderHotelDetailByOrderHotelHeaderId(int orderHotelHeaderId);
     }
 }
