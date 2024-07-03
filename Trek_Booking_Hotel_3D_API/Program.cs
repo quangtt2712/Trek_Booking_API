@@ -117,9 +117,11 @@ builder.Services.AddScoped<ICartTourRepository, CartTourRepository>();
 builder.Services.AddScoped<ITourOrderRepository, TourOrderRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IHotelImageRepository, HotelImageRepository>();
 builder.Services.AddScoped<IAuthenticationUserRepository, AuthenticationUserRepository>();
 builder.Services.AddScoped<IJwtUtils, JwtUtils>();
 builder.Services.AddScoped<AuthMiddleWare>();
+
 
 
 var app = builder.Build();
