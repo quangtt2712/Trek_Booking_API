@@ -12,6 +12,8 @@ public class OrderTourHeader
 
     public User? User { get; set; }
 
+    public int? SupplierId { get; set; }
+
 
     public decimal? TotalPrice { get; set; }
 

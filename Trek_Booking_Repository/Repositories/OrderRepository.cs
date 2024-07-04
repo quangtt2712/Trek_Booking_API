@@ -27,6 +27,7 @@ namespace Trek_Booking_Repository.Repositories
                 var orderHeader = new OrderHotelHeader
                 {
                     UserId = objDTO.OrderHeader.UserId,
+                    SupplierId = objDTO.OrderHeader.SupplierId,
                     TotalPrice = objDTO.OrderHeader.TotalPrice,
                     CheckInDate = objDTO.OrderHeader.CheckInDate,
                     CheckOutDate = objDTO.OrderHeader.CheckOutDate,
@@ -68,6 +69,7 @@ namespace Trek_Booking_Repository.Repositories
                     {
                         Id = orderHeader.Id,
                         UserId = orderHeader.UserId,
+                        SupplierId = objDTO.OrderHeader.SupplierId,
                         TotalPrice = orderHeader.TotalPrice,
                         CheckInDate = orderHeader.CheckInDate,
                         CheckOutDate = orderHeader.CheckOutDate,
@@ -108,6 +110,7 @@ namespace Trek_Booking_Repository.Repositories
                 var orderHeader = new OrderTourHeader
                 {
                     UserId = objDTO.OrderHeader.UserId,
+                    SupplierId = objDTO.OrderHeader.SupplierId,
                     TotalPrice = objDTO.OrderHeader.TotalPrice,
                     TourOrderDate = objDTO.OrderHeader.TourOrderDate,
                     SessionId = objDTO.OrderHeader.SessionId,
@@ -146,6 +149,7 @@ namespace Trek_Booking_Repository.Repositories
                     {
                         Id = orderHeader.Id,
                         UserId = orderHeader.UserId,
+                        SupplierId = objDTO.OrderHeader.SupplierId,
                         TotalPrice = orderHeader.TotalPrice,
                         TourOrderDate = orderHeader.TourOrderDate,
                         SessionId = orderHeader.SessionId,
