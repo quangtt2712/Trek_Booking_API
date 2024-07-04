@@ -37,6 +37,7 @@ namespace Trek_Booking_DataAccess
         public int TourCapacity { get; set; }
         public decimal TourDiscount { get; set; }
         public bool Status { get; set; }
+        public int TourView { get; set; }
 
         [ForeignKey("Supplier")]
         public int SupplierId { get; set; }

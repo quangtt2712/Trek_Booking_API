@@ -14,11 +14,11 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
         {
             _repository = repository;
         }
-
-        [HttpGet("/getOrderHotelDetailByOrderHotelHeaderId/{orderTourHeaderId}")]
-        public async Task<IActionResult> getOrderHotelDetailByOrderHotelHeaderId(int orderTourHeaderId)
+        
+        [HttpGet("/getOrderHotelDetailByOrderHotelHeaderId/{orderHotelHeaderId}")]
+        public async Task<IActionResult> getOrderHotelDetailByOrderHotelHeaderId(int orderHotelHeaderId)
         {
-            var check = await _repository.getOrderHotelDetailByOrderHotelHeaderId(orderTourHeaderId);
+            var check = await _repository.getOrderHotelDetailByOrderHotelHeaderId(orderHotelHeaderId);
             if (check == null)
             {
                 return NotFound("Not Found");
