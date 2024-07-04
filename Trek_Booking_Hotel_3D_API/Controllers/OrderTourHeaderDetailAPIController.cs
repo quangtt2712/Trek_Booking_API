@@ -7,12 +7,12 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrderTourHeaderDetailAPIController : ControllerBase
+    public class OrderTourHeaderAPIController : ControllerBase
     {
         private readonly IOrderTourHeaderRepository _repository;
         private readonly AuthMiddleWare _authMiddleWare;
 
-        public OrderTourHeaderDetailAPIController(IOrderTourHeaderRepository repository, AuthMiddleWare authMiddleWare)
+        public OrderTourHeaderAPIController(IOrderTourHeaderRepository repository, AuthMiddleWare authMiddleWare)
         {
             _repository = repository;
             _authMiddleWare = authMiddleWare;
