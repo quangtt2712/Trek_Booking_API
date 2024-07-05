@@ -64,21 +64,13 @@ namespace Trek_Booking_Repository.Repositories
         public async Task<IEnumerable<CartTour>> getCartTourByUserId(int userId)
         {
             var findUser = await _context.cartTours.Where(t => t.UserId == userId).ToListAsync();
-            if (findUser.Any())
-            {
-                return findUser;
-            }
-            throw new Exception("Not found");
+            return findUser;
         }
 
         public async Task<IEnumerable<CartTour>> getCartTours()
         {
             var findAll = await _context.cartTours.Include(t => t.Tour).Include(y => y.User).ToListAsync();
-            if (findAll.Any())
-            {
-                return findAll;
-            }
-            throw new Exception("Not found");
+            return findAll;
         }
 
         public async Task<CartTour> updateCartTour(CartTour cartTour)
