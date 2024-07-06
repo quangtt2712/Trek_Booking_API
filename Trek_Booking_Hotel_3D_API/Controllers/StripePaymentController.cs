@@ -81,10 +81,10 @@ namespace YourNamespace.Controllers
                 // paymentDTO.Order.OrderHeader.Requirement = paymentDTO.Order.OrderHeader.Requirement;
 
                 var createdOrder = await _orderRepository.Create(paymentDTO.Order);
-                foreach (var detail in paymentDTO.Order.OrderDetails)
-                {
-                    await ClearCart(detail.RoomId);
-                }
+                //foreach (var detail in paymentDTO.Order.OrderDetails)
+                //{
+                //    await ClearCart(detail.RoomId);
+                //}
                 return Ok(new SuccessModelDTO
                 {
                     Data = session.Id
@@ -100,7 +100,10 @@ namespace YourNamespace.Controllers
             }
         }
 
-        private async Task ClearCart(int? roomId)
+
+
+        [HttpDelete("{roomId}")]
+        public async Task<IActionResult> ClearCart(int? roomId)
         {
             try
             {
@@ -110,17 +113,41 @@ namespace YourNamespace.Controllers
                     _context.bookingCarts.Remove(cartItem);
                     await _context.SaveChangesAsync();
                     _logger.LogInformation("Cart cleared successfully for roomId: {roomId}", roomId);
+                    return Ok(new { message = "Cart cleared successfully" });
                 }
                 else
                 {
                     _logger.LogWarning("Cart item not found for roomId: {roomId}", roomId);
+                    return NotFound(new { message = "Cart item not found" });
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError("Error clearing cart: {message}", ex.Message);
+                return StatusCode(500, new { message = "Error clearing cart", error = ex.Message });
             }
         }
+        //private async Task ClearCart(int? roomId)
+        //{
+        //    try
+        //    {
+        //        var cartItem = _context.bookingCarts.FirstOrDefault(ci => ci.RoomId == roomId);
+        //        if (cartItem != null)
+        //        {
+        //            _context.bookingCarts.Remove(cartItem);
+        //            await _context.SaveChangesAsync();
+        //            _logger.LogInformation("Cart cleared successfully for roomId: {roomId}", roomId);
+        //        }
+        //        else
+        //        {
+        //            _logger.LogWarning("Cart item not found for roomId: {roomId}", roomId);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError("Error clearing cart: {message}", ex.Message);
+        //    }
+        //}
 
         [HttpPost("/StripePayment/CreateTour")]
         public async Task<IActionResult> CreateTour([FromBody] StripePaymentTourDTO paymentDTO)
