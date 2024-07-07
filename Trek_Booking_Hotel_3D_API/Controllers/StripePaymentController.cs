@@ -186,12 +186,14 @@ namespace YourNamespace.Controllers
             }
         }
 
-
         [HttpPost("/StripePayment/CreateTour")]
-        public async Task<IActionResult> CreateTour([FromBody] StripePaymentDTO paymentDTO)
+        public async Task<IActionResult> CreateTour([FromBody] StripePaymentTourDTO paymentDTO)
         {
             try
             {
+                // Log dữ liệu nhận được để kiểm tra
+                Console.WriteLine(JsonConvert.SerializeObject(paymentDTO));
+
                 var domain = _configuration.GetValue<string>("Trekbooking_Client_URL");
 
                 var options = new Stripe.Checkout.SessionCreateOptions
@@ -203,19 +205,22 @@ namespace YourNamespace.Controllers
                     PaymentMethodTypes = new List<string> { "card" }
                 };
 
+                // Sử dụng OrderHeader để lấy tổng giá
                 var totalPrice = paymentDTO.Order.OrderHeader.TotalPrice;
-                var tourNames = paymentDTO.Order.OrderDetails.Select(d => $"Tour Name: {d.RoomName} at {d.HotelName}").ToList();
-                var combinedNames = string.Join(", ", tourNames);
+
+
+                var TourNames = paymentDTO.Order.OrderDetails.Select(d => $"Tour Name: {d.TourName}").ToList();
+                var combinedNames = string.Join(", ", TourNames);
 
                 var sessionLineItem = new Stripe.Checkout.SessionLineItemOptions
                 {
                     PriceData = new Stripe.Checkout.SessionLineItemPriceDataOptions
                     {
-                        UnitAmount = (long)(totalPrice * 100),
+                        UnitAmount = (long)(totalPrice * 100), // Tổng giá đã tính sẵn
                         Currency = "usd",
                         ProductData = new Stripe.Checkout.SessionLineItemPriceDataProductDataOptions
                         {
-                            Name = combinedNames
+                            Name = combinedNames // Tên phòng và tên khách sạn kết hợp
                         }
                     },
                     Quantity = 1
@@ -224,9 +229,13 @@ namespace YourNamespace.Controllers
 
                 var service = new Stripe.Checkout.SessionService();
                 var session = await service.CreateAsync(options);
+
                 paymentDTO.Order.OrderHeader.SessionId = session.Id;
                 paymentDTO.Order.OrderHeader.PaymentIntentId = session.PaymentIntentId;
-                var createdOrder = await _orderRepository.Create(paymentDTO.Order);
+
+
+                var createdOrder = await _orderRepository.CreateTour(paymentDTO.Order);
+          
 
                 return Ok(new SuccessModelDTO
                 {
@@ -235,15 +244,13 @@ namespace YourNamespace.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine("Error: " + ex.Message);
                 return BadRequest(new ErrorModelDTO
                 {
                     ErrorMessage = ex.Message,
                 });
             }
         }
-
-
-
         [HttpPost("/StripePayment/ConfirmTour")]
         public async Task<IActionResult> ConfirmTour()
         {
@@ -305,6 +312,8 @@ namespace YourNamespace.Controllers
 
             return Ok();
         }
+
+
 
         private async Task ClearCartTour(int tourId)
         {
