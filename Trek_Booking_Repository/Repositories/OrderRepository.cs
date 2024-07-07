@@ -20,7 +20,17 @@ namespace Trek_Booking_Repository.Repositories
             _context = context;
            
         }
+        public async Task<OrderTourHeader> GetOrderTourBySessionId(string sessionId)
+        {
+            return await _context.OrderTourHeaders
+                 .FirstOrDefaultAsync(o => o.SessionId == sessionId);
+        }
 
+        public async Task UpdateTour(OrderTourHeader orderTour)
+        {
+            _context.OrderTourHeaders.Update(orderTour);
+            await _context.SaveChangesAsync();
+        }
         public async Task<OrderHotelHeader> GetOrderBySessionId(string sessionId)
         {
             return await _context.OrderHotelHeaders
@@ -196,8 +206,6 @@ namespace Trek_Booking_Repository.Repositories
             }
         }
 
-
-
-
+     
     }
 }

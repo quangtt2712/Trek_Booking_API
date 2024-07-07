@@ -186,14 +186,12 @@ namespace YourNamespace.Controllers
             }
         }
 
+
         [HttpPost("/StripePayment/CreateTour")]
-        public async Task<IActionResult> CreateTour([FromBody] StripePaymentTourDTO paymentDTO)
+        public async Task<IActionResult> CreateTour([FromBody] StripePaymentDTO paymentDTO)
         {
             try
             {
-                // Log dữ liệu nhận được để kiểm tra
-                Console.WriteLine(JsonConvert.SerializeObject(paymentDTO));
-
                 var domain = _configuration.GetValue<string>("Trekbooking_Client_URL");
 
                 var options = new Stripe.Checkout.SessionCreateOptions
@@ -205,22 +203,19 @@ namespace YourNamespace.Controllers
                     PaymentMethodTypes = new List<string> { "card" }
                 };
 
-                // Sử dụng OrderHeader để lấy tổng giá
                 var totalPrice = paymentDTO.Order.OrderHeader.TotalPrice;
-
-
-                var TourNames = paymentDTO.Order.OrderDetails.Select(d => $"Tour Name: {d.TourName}").ToList();
-                var combinedNames = string.Join(", ", TourNames);
+                var tourNames = paymentDTO.Order.OrderDetails.Select(d => $"Tour Name: {d.RoomName} at {d.HotelName}").ToList();
+                var combinedNames = string.Join(", ", tourNames);
 
                 var sessionLineItem = new Stripe.Checkout.SessionLineItemOptions
                 {
                     PriceData = new Stripe.Checkout.SessionLineItemPriceDataOptions
                     {
-                        UnitAmount = (long)(totalPrice * 100), // Tổng giá đã tính sẵn
+                        UnitAmount = (long)(totalPrice * 100),
                         Currency = "usd",
                         ProductData = new Stripe.Checkout.SessionLineItemPriceDataProductDataOptions
                         {
-                            Name = combinedNames // Tên phòng và tên khách sạn kết hợp
+                            Name = combinedNames
                         }
                     },
                     Quantity = 1
@@ -229,19 +224,9 @@ namespace YourNamespace.Controllers
 
                 var service = new Stripe.Checkout.SessionService();
                 var session = await service.CreateAsync(options);
-
-                // Gọi hàm lưu đơn hàng sau khi thanh toán thành công
                 paymentDTO.Order.OrderHeader.SessionId = session.Id;
                 paymentDTO.Order.OrderHeader.PaymentIntentId = session.PaymentIntentId;
-
-                // Giả sử bạn muốn lưu trường Requirement từ phía client
-                // paymentDTO.Order.OrderHeader.Requirement = paymentDTO.Order.OrderHeader.Requirement;
-
-                var createdOrder = await _orderRepository.CreateTour(paymentDTO.Order);
-                foreach (var detail in paymentDTO.Order.OrderDetails)
-                {
-                    await ClearCartTour(detail.TourId);
-                }
+                var createdOrder = await _orderRepository.Create(paymentDTO.Order);
 
                 return Ok(new SuccessModelDTO
                 {
@@ -250,7 +235,6 @@ namespace YourNamespace.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
                 return BadRequest(new ErrorModelDTO
                 {
                     ErrorMessage = ex.Message,
@@ -258,6 +242,69 @@ namespace YourNamespace.Controllers
             }
         }
 
+
+
+        [HttpPost("/StripePayment/ConfirmTour")]
+        public async Task<IActionResult> ConfirmTour()
+        {
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            var signatureHeader = Request.Headers["Stripe-Signature"];
+
+            if (string.IsNullOrEmpty(signatureHeader))
+            {
+                return BadRequest("Missing Stripe-Signature header.");
+            }
+
+            var webhookSecret = _configuration.GetValue<string>("Stripe:WebhookSecret");
+            if (string.IsNullOrEmpty(webhookSecret))
+            {
+                throw new InvalidOperationException("Stripe webhook secret is not configured.");
+            }
+
+            Stripe.Event stripeEvent;
+            try
+            {
+                stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, webhookSecret, throwOnApiVersionMismatch: false);
+            }
+            catch (StripeException e)
+            {
+                return BadRequest($"Unable to construct Stripe event: {e.Message}");
+            }
+
+            if (stripeEvent.Type == Events.CheckoutSessionCompleted)
+            {
+                var session = stripeEvent.Data.Object as Stripe.Checkout.Session;
+                if (session == null)
+                {
+                    return BadRequest("Session is null.");
+                }
+
+                var order = await _orderRepository.GetOrderTourBySessionId(session.Id);
+                if (order != null)
+                {
+                    order.PaymentIntentId = session.PaymentIntentId;
+                    order.Process = "Success";
+                    await _orderRepository.UpdateTour(order);
+
+                    var orderDetails = await _context.OrderTourDetails
+                        .Where(od => od.OrderTourHeaderlId == order.Id)
+                        .ToListAsync();
+
+                    foreach (var detail in orderDetails)
+                    {
+                        await ClearCart(detail.TourId);
+                    }
+
+                    return Ok();
+                }
+                else
+                {
+                    return NotFound("Order not found");
+                }
+            }
+
+            return Ok();
+        }
 
         private async Task ClearCartTour(int tourId)
         {
