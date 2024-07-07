@@ -51,7 +51,7 @@ namespace Trek_Booking_Repository.Repositories
                     Email = objDTO.OrderHeader.Email,
                     Phone = objDTO.OrderHeader.Phone,
                     Requirement = objDTO.OrderHeader.Requirement,
-                    Process = objDTO.OrderHeader.Requirement,
+                    Process = objDTO.OrderHeader.Process,
                     Completed = objDTO.OrderHeader.Completed
                 };
 
@@ -94,7 +94,7 @@ namespace Trek_Booking_Repository.Repositories
                         Email = orderHeader.Email,
                         Phone = orderHeader.Phone,
                         Requirement = orderHeader.Requirement,
-                       Process = orderHeader.Requirement,
+                       Process = orderHeader.Process,
                        Completed = orderHeader.Completed
                     },
                     OrderDetails = orderDetails.Select(d => new OrderHotelDetail

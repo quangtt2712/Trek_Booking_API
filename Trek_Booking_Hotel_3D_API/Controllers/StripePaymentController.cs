@@ -118,7 +118,7 @@ namespace YourNamespace.Controllers
             Stripe.Event stripeEvent;
             try
             {
-                stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, webhookSecret);
+                stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, webhookSecret, throwOnApiVersionMismatch: false);
             }
             catch (StripeException e)
             {
