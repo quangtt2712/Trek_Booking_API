@@ -299,7 +299,7 @@ namespace YourNamespace.Controllers
 
                     foreach (var detail in orderDetails)
                     {
-                        await ClearCart(detail.TourId);
+                        await ClearCartTour(detail.TourId);
                     }
 
                     return Ok();
