@@ -4,5 +4,6 @@
     {
         public string ApiKey { get; set; }
         public string WebhookSecret { get; set; }
+        public string WebhookSecretTour { get; set; } 
     }
 }

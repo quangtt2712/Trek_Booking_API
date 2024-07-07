@@ -255,26 +255,29 @@ namespace YourNamespace.Controllers
         public async Task<IActionResult> ConfirmTour()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
-            var signatureHeader = Request.Headers["Stripe-Signature"];
+            var signatureHeader = Request.Headers["Stripe-Signature"].FirstOrDefault();
 
             if (string.IsNullOrEmpty(signatureHeader))
             {
+                _logger.LogError("Missing Stripe-Signature header.");
                 return BadRequest("Missing Stripe-Signature header.");
             }
 
-            var webhookSecret = _configuration.GetValue<string>("Stripe:WebhookSecret");
-            if (string.IsNullOrEmpty(webhookSecret))
+            var webhookSecretTour = _configuration.GetValue<string>("Stripe:WebhookSecretTour");
+            if (string.IsNullOrEmpty(webhookSecretTour))
             {
-                throw new InvalidOperationException("Stripe webhook secret is not configured.");
+                _logger.LogError("Stripe webhook secret for tour is not configured.");
+                throw new InvalidOperationException("Stripe webhook secret for tour is not configured.");
             }
 
             Stripe.Event stripeEvent;
             try
             {
-                stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, webhookSecret, throwOnApiVersionMismatch: false);
+                stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, webhookSecretTour, throwOnApiVersionMismatch: false);
             }
             catch (StripeException e)
             {
+                _logger.LogError($"Unable to construct Stripe event: {e.Message}");
                 return BadRequest($"Unable to construct Stripe event: {e.Message}");
             }
 
@@ -283,36 +286,39 @@ namespace YourNamespace.Controllers
                 var session = stripeEvent.Data.Object as Stripe.Checkout.Session;
                 if (session == null)
                 {
+                    _logger.LogError("Session is null.");
                     return BadRequest("Session is null.");
                 }
 
-                //var order = await _orderRepository.GetOrderTourBySessionId(session.Id);
-                //if (order != null)
-                //{
-                //    order.PaymentIntentId = session.PaymentIntentId;
-                //    order.Process = "Success";
-                //    await _orderRepository.UpdateTour(order);
+                _logger.LogInformation($"Session ID: {session.Id}, Payment Intent ID: {session.PaymentIntentId}, Email: {session.CustomerDetails.Email}");
 
-                //    var orderDetails = await _context.OrderTourDetails
-                //        .Where(od => od.OrderTourHeaderlId == order.Id)
-                //        .ToListAsync();
+                var order = await _orderRepository.GetOrderTourBySessionId(session.Id);
+                if (order != null)
+                {
+                    order.PaymentIntentId = session.PaymentIntentId;
+                    order.Process = "Success";
+                    await _orderRepository.UpdateTour(order);
 
-                //    foreach (var detail in orderDetails)
-                //    {
-                //        await ClearCartTour(detail.TourId);
-                //    }
+                    var orderDetails = await _context.OrderTourDetails
+                        .Where(od => od.OrderTourHeaderlId == order.Id)
+                        .ToListAsync();
 
-                //    return Ok();
-                //}
-                //else
-                //{
-                //    return NotFound("Order not found");
-                //}
+                    foreach (var detail in orderDetails)
+                    {
+                        await ClearCartTour(detail.TourId);
+                    }
+
+                    return Ok();
+                }
+                else
+                {
+                    _logger.LogError($"Order not found for session ID: {session.Id}");
+                    return NotFound("Order not found");
+                }
             }
 
             return Ok();
         }
-
 
 
         private async Task ClearCartTour(int tourId)
