@@ -286,28 +286,28 @@ namespace YourNamespace.Controllers
                     return BadRequest("Session is null.");
                 }
 
-                var order = await _orderRepository.GetOrderTourBySessionId(session.Id);
-                if (order != null)
-                {
-                    order.PaymentIntentId = session.PaymentIntentId;
-                    order.Process = "Success";
-                    await _orderRepository.UpdateTour(order);
+                //var order = await _orderRepository.GetOrderTourBySessionId(session.Id);
+                //if (order != null)
+                //{
+                //    order.PaymentIntentId = session.PaymentIntentId;
+                //    order.Process = "Success";
+                //    await _orderRepository.UpdateTour(order);
 
-                    var orderDetails = await _context.OrderTourDetails
-                        .Where(od => od.OrderTourHeaderlId == order.Id)
-                        .ToListAsync();
+                //    var orderDetails = await _context.OrderTourDetails
+                //        .Where(od => od.OrderTourHeaderlId == order.Id)
+                //        .ToListAsync();
 
-                    foreach (var detail in orderDetails)
-                    {
-                        await ClearCartTour(detail.TourId);
-                    }
+                //    foreach (var detail in orderDetails)
+                //    {
+                //        await ClearCartTour(detail.TourId);
+                //    }
 
-                    return Ok();
-                }
-                else
-                {
-                    return NotFound("Order not found");
-                }
+                //    return Ok();
+                //}
+                //else
+                //{
+                //    return NotFound("Order not found");
+                //}
             }
 
             return Ok();
