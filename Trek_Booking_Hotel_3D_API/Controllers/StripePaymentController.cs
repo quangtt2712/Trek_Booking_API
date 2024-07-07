@@ -81,7 +81,7 @@ namespace YourNamespace.Controllers
                 // paymentDTO.Order.OrderHeader.Requirement = paymentDTO.Order.OrderHeader.Requirement;
 
                 var createdOrder = await _orderRepository.Create(paymentDTO.Order);
-                    Console.WriteLine("test");
+                
                 foreach (var detail in paymentDTO.Order.OrderDetails)
                 {
                    await ClearCart(detail.RoomId);
