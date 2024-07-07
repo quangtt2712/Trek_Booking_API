@@ -81,10 +81,10 @@ namespace YourNamespace.Controllers
                 // paymentDTO.Order.OrderHeader.Requirement = paymentDTO.Order.OrderHeader.Requirement;
 
                 var createdOrder = await _orderRepository.Create(paymentDTO.Order);
-                //foreach (var detail in paymentDTO.Order.OrderDetails)
-                //{
-                //    await ClearCart(detail.RoomId);
-                //}
+                foreach (var detail in paymentDTO.Order.OrderDetails)
+                {
+                   await ClearCart(detail.RoomId);
+                }
                 return Ok(new SuccessModelDTO
                 {
                     Data = session.Id
