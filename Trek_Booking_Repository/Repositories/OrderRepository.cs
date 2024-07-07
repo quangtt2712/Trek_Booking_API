@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,19 @@ namespace Trek_Booking_Repository.Repositories
             _context = context;
            
         }
+
+        public async Task<OrderHotelHeader> GetOrderBySessionId(string sessionId)
+        {
+            return await _context.OrderHotelHeaders
+                .FirstOrDefaultAsync(o => o.SessionId == sessionId);
+        }
+
+        public async Task Update(OrderHotelHeader order)
+        {
+            _context.OrderHotelHeaders.Update(order);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<OrderDTO> Create(OrderDTO objDTO)
         {
             try
