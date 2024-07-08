@@ -25,7 +25,7 @@ namespace Trek_Booking_Repository.Repositories
         }
         public async Task<IEnumerable<OrderHotelHeader>> getOrderHotelHeaderBySupplierId(int supplierId)
         {
-            var check = await _dbContext.OrderHotelHeaders.Where(u => u.SupplierId == supplierId).ToListAsync();
+            var check = await _dbContext.OrderHotelHeaders.Where(u => u.SupplierId == supplierId && u.Process== "Success").ToListAsync();
             return check;
         }
     }
