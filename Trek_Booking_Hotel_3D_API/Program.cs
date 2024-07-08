@@ -84,7 +84,7 @@ builder.Services.AddAuthentication(opt =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
-        builder => builder.WithOrigins("http://localhost:3000","https://trek-booking.vercel.app")
+        builder => builder.WithOrigins("http://localhost:3000","https://trek-booking.vercel.app","https://admintrekbooking.vercel.app")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
