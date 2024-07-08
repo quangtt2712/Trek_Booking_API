@@ -10,5 +10,6 @@ namespace Trek_Booking_Repository.Repositories.IRepositories
     public interface IOrderTourHeaderRepository
     {
         public Task<IEnumerable<OrderTourHeader>> getOrderTourHeaderByUserId(int userId);
+        public Task<IEnumerable<OrderTourHeader>> getOrderTourHeaderBySupplierId(int supplierId);
     }
 }

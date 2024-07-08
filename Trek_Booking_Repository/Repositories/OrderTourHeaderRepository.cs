@@ -23,5 +23,10 @@ namespace Trek_Booking_Repository.Repositories
             var find = await _dbContext.OrderTourHeaders.Where(u => u.UserId == userId).ToListAsync();
             return find;
         }
+        public async Task<IEnumerable<OrderTourHeader>> getOrderTourHeaderBySupplierId(int supplierId)
+        {
+            var check = await _dbContext.OrderTourHeaders.Where(u => u.SupplierId == supplierId).ToListAsync();
+            return check;
+        }
     }
 }

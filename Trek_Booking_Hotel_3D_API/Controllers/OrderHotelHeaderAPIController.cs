@@ -29,5 +29,16 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             }
             return Ok(check);
         }
+        [HttpGet("/getOrderHotelHeaderBySupplierId")]
+        public async Task<IActionResult> getOrderHotelHeaderBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getOrderHotelHeaderBySupplierId(supplierId.Value);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
     }
 }

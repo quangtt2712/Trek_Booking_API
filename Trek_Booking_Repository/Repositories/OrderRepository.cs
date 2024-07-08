@@ -63,6 +63,7 @@ namespace Trek_Booking_Repository.Repositories
                     Requirement = objDTO.OrderHeader.Requirement,
                     Process = objDTO.OrderHeader.Process,
                     Completed = objDTO.OrderHeader.Completed
+                    
                 };
 
                 _context.OrderHotelHeaders.Add(orderHeader);
