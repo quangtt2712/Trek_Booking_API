@@ -40,5 +40,49 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             }
             return Ok(check);
         }
+        [HttpGet("/getRevenueYearBySupplierId")]
+        public async Task<IActionResult> getRevenueYearBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getRevenueYearBySupplierId(supplierId.Value);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
+
+        [HttpGet("/countTotalOrderHotelBySupplierId")]
+        public async Task<int> countTotalOrderHotelBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.countTotalOrderHotelBySupplierId(supplierId.Value);
+            return check;
+        }
+
+
+        [HttpGet("/getPercentChangeFromLastWeek")]
+        public async Task<double> getPercentChangeFromLastWeek()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getPercentChangeFromLastWeek(supplierId.Value, DateTime.Now);
+            return check;
+        }
+
+        [HttpGet("/getTotalRevenueHotelBySupplierId")]
+        public async Task<decimal> getTotalRevenueHotelBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getTotalRevenueHotelBySupplierId(supplierId.Value);
+            return check;
+        }
+
+        [HttpGet("/getPercentChangeRevenueFromLastWeek")]
+        public async Task<decimal> getPercentChangeRevenueFromLastWeek()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getPercentChangeRevenueFromLastWeek(supplierId.Value, DateTime.Now);
+            return check;
+        }
     }
 }

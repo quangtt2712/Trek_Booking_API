@@ -40,5 +40,64 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             }
             return Ok(check);
         }
+        [HttpGet("/getRevenueTourBySupplierId")]
+        public async Task<IActionResult> getRevenueTourBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getRevenueTourBySupplierId(supplierId.Value);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
+
+        [HttpGet("/countTotalOrderTourBySupplierId")]
+        public async Task<IActionResult> countTotalOrderTourBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.countTotalOrderTourBySupplierId(supplierId.Value);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
+
+        [HttpGet("/getPercentChangeTourFromLastWeek")]
+        public async Task<IActionResult> getPercentChangeTourFromLastWeek()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getPercentChangeTourFromLastWeek(supplierId.Value, DateTime.Now);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
+
+        [HttpGet("/getTotalRevenueTourBySupplierId")]
+        public async Task<IActionResult> getTotalRevenueTourBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getTotalRevenueTourBySupplierId(supplierId.Value);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
+
+        [HttpGet("/getPercentChangeRevenueTourFromLastWeek")]
+        public async Task<IActionResult> getPercentChangeRevenueTourFromLastWeek()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getPercentChangeRevenueTourFromLastWeek(supplierId.Value, DateTime.Now);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
     }
 }
