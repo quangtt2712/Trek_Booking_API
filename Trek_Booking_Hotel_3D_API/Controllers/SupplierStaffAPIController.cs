@@ -29,7 +29,19 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             _supplierRepository = supplierRepository;
             _authMiddleWare = authMiddleWare;
         }
+        [HttpGet("/getSupplierStaffBySupplierIdAdmin/{supplierId}")]
+        public async Task<IActionResult> getSupplierStaffBySupplierIdAdmin(int supplierId)
+        {
 
+            var check = await _repository.getSupplierStaffBySupplierId(supplierId);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+
+
+        }
         [HttpPut("ToggleSupplierStaff")]
         public async Task<IActionResult> ToggleStatus([FromBody] ToggleSupplierStaffRequest request)
         {
