@@ -25,15 +25,15 @@ namespace YourNamespace.Controllers
         private readonly ApplicationDBContext _context;
         private readonly IOrderRepository _orderRepository;
         private readonly StripeSettings _stripeSettings;
-        private readonly IEmailSender _emailSender;
-        public StripePaymentController(IEmailSender emailSender, IOptions<StripeSettings> stripeSettings, ILogger<StripePaymentController> logger, IConfiguration configuration,ApplicationDBContext context,IOrderRepository orderRepository)
+      
+        public StripePaymentController(IOptions<StripeSettings> stripeSettings, ILogger<StripePaymentController> logger, IConfiguration configuration,ApplicationDBContext context,IOrderRepository orderRepository)
         {
             _logger = logger;
             _configuration = configuration;
             _context = context;
             _orderRepository = orderRepository;
             _stripeSettings = stripeSettings.Value;
-            _emailSender = emailSender;
+          
         }
 
         [HttpPost("/StripePayment/Create")]
@@ -154,8 +154,7 @@ namespace YourNamespace.Controllers
                     {
                         await ClearCart(detail.RoomId);
                     }
-                    string emailContent = $"Cảm ơn anh/chị đã mua hàng tại web: https://trek-booking.vercel.app/";
-                    await _emailSender.SendEmailAsync(order.Email, "Cảm ơn bạn đã đặt phòng", emailContent);
+
 
                     return Ok();
                 }
