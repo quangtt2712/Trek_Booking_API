@@ -48,6 +48,7 @@ builder.Services.AddSwaggerGen(c =>
 var apiSettingsSection = builder.Configuration.GetSection("APISettings");
 builder.Services.Configure<APISettings>(apiSettingsSection);
 var apiSettings = apiSettingsSection.Get<APISettings>();
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 var key = Encoding.ASCII.GetBytes(apiSettings.SecretKey);
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 builder.Services.AddAuthentication(opt =>
