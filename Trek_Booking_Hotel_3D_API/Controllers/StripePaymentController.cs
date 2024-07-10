@@ -25,15 +25,18 @@ namespace YourNamespace.Controllers
         private readonly ApplicationDBContext _context;
         private readonly IOrderRepository _orderRepository;
         private readonly StripeSettings _stripeSettings;
-      
-        public StripePaymentController(IOptions<StripeSettings> stripeSettings, ILogger<StripePaymentController> logger, IConfiguration configuration,ApplicationDBContext context,IOrderRepository orderRepository)
+        private readonly IEmailSender _emailSender;
+
+
+        public StripePaymentController(IEmailSender emailSender, IOptions<StripeSettings> stripeSettings, ILogger<StripePaymentController> logger, IConfiguration configuration,ApplicationDBContext context,IOrderRepository orderRepository)
         {
             _logger = logger;
             _configuration = configuration;
             _context = context;
             _orderRepository = orderRepository;
             _stripeSettings = stripeSettings.Value;
-          
+            _emailSender = emailSender;
+
         }
 
         [HttpPost("/StripePayment/Create")]
@@ -82,7 +85,8 @@ namespace YourNamespace.Controllers
                 paymentDTO.Order.OrderHeader.SessionId = session.Id;
                 paymentDTO.Order.OrderHeader.PaymentIntentId = session.PaymentIntentId;
                 var createdOrder = await _orderRepository.Create(paymentDTO.Order);
-
+                string emailContent = "Cảm ơn anh/chị ";
+                await _emailSender.SendEmailAsync(paymentDTO.Order.OrderHeader.Email, "Cảm ơn bạn đã mua hàng ", emailContent);
                 //foreach (var detail in paymentDTO.Order.OrderDetails)
                 //{
                 //    await ClearCart(detail.RoomId);
@@ -101,6 +105,8 @@ namespace YourNamespace.Controllers
                 });
             }
         }
+
+
         [HttpPost("/StripePayment/Confirm")]
         public async Task<IActionResult> Confirm()
         {
@@ -125,6 +131,7 @@ namespace YourNamespace.Controllers
             }
             catch (StripeException e)
             {
+                _logger.LogError($"Unable to construct Stripe event: {e.Message}");
                 return BadRequest($"Unable to construct Stripe event: {e.Message}");
             }
 
@@ -133,6 +140,7 @@ namespace YourNamespace.Controllers
                 var session = stripeEvent.Data.Object as Stripe.Checkout.Session;
                 if (session == null)
                 {
+                    _logger.LogError("Session is null.");
                     return BadRequest("Session is null.");
                 }
 
@@ -140,32 +148,40 @@ namespace YourNamespace.Controllers
                 var order = await _orderRepository.GetOrderBySessionId(session.Id);
                 if (order != null)
                 {
+                    string emailContent = "Cảm ơn anh/chị2 ";
+                    await _emailSender.SendEmailAsync(order.Email, "Cảm ơn bạn đã mua hàng 2", emailContent);
+
                     order.PaymentIntentId = session.PaymentIntentId;
                     order.Process = "Success"; // Cập nhật trạng thái thành công
                     await _orderRepository.Update(order);
+
+                    
+               
+                
 
                     // Tải chi tiết đơn hàng
                     var orderDetails = await _context.OrderHotelDetails
                         .Where(od => od.OrderHotelHeaderlId == order.Id)
                         .ToListAsync();
-                
+
                     // Xóa cart
                     foreach (var detail in orderDetails)
                     {
                         await ClearCart(detail.RoomId);
                     }
 
-
                     return Ok();
                 }
                 else
                 {
+                    _logger.LogError("Order not found for session id: " + session.Id);
                     return NotFound("Order not found");
                 }
             }
 
             return Ok();
         }
+
 
 
         private async Task ClearCart(int? roomId)

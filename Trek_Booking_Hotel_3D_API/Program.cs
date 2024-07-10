@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -51,6 +52,9 @@ var apiSettings = apiSettingsSection.Get<APISettings>();
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 var key = Encoding.ASCII.GetBytes(apiSettings.SecretKey);
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+
 builder.Services.AddAuthentication(opt =>
 {
     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
