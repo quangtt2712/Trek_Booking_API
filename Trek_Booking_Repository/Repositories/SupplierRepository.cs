@@ -22,7 +22,34 @@ namespace Trek_Booking_Repository.Repositories
             _context = context;
             _passwordHasher = passwordHasher;
         }
+        public async Task<Supplier> changePasswordSupplier(Supplier supplier)
+        {
+            var findSupplier = await _context.suppliers.FirstOrDefaultAsync(t => t.SupplierId == supplier.SupplierId);
+            if (findSupplier != null)
+            {
+                var newPasswordHash = _passwordHasher.HashPassword(supplier.Password);
+                findSupplier.Password = newPasswordHash;
 
+                _context.suppliers.Update(findSupplier);
+                await _context.SaveChangesAsync();
+                return findSupplier;
+            }
+            return null;
+        }
+        public async Task<Supplier> checkPasswordSupplier(Supplier supplier)
+        {
+            var check = await getUserByEmail(supplier.Email);
+            if (check == null)
+            {
+                throw new Exception("Email is not found!");
+            }
+            var result = _passwordHasher.Verify(check.Password, supplier.Password);
+            if (!result)
+            {
+                return null; //Password incorrect
+            }
+            return check;
+        }
         public async Task<bool> checkExitsEmail(string email)
         {
             var check = await _context.suppliers.AnyAsync(n => n.Email == email);

@@ -85,12 +85,6 @@ namespace YourNamespace.Controllers
                 paymentDTO.Order.OrderHeader.SessionId = session.Id;
                 paymentDTO.Order.OrderHeader.PaymentIntentId = session.PaymentIntentId;
                 var createdOrder = await _orderRepository.Create(paymentDTO.Order);
-                string emailContent = "Cảm ơn anh/chị ";
-                await _emailSender.SendEmailAsync(paymentDTO.Order.OrderHeader.Email, "Cảm ơn bạn đã mua hàng ", emailContent);
-                //foreach (var detail in paymentDTO.Order.OrderDetails)
-                //{
-                //    await ClearCart(detail.RoomId);
-                //}
                 return Ok(new SuccessModelDTO
                 {
                     Data = session.Id
@@ -148,8 +142,8 @@ namespace YourNamespace.Controllers
                 var order = await _orderRepository.GetOrderBySessionId(session.Id);
                 if (order != null)
                 {
-                    string emailContent = "Cảm ơn anh/chị2 ";
-                    await _emailSender.SendEmailAsync(order.Email, "Cảm ơn bạn đã mua hàng 2", emailContent);
+                    string emailContent = "Cảm ơn anh/chị đã booking tại web https://trek-booking.vercel.app  ";
+                    await _emailSender.SendEmailAsync(order.Email, "TrekBooking ", emailContent);
 
                     order.PaymentIntentId = session.PaymentIntentId;
                     order.Process = "Success"; // Cập nhật trạng thái thành công

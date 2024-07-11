@@ -22,5 +22,47 @@ namespace Trek_Booking_Repository.Repositories
             var check = await _dbContext.OrderHotelDetails.FirstOrDefaultAsync(t => t.OrderHotelHeaderlId == orderHotelHeaderId);
             return check;
         }
+
+        public async Task<IEnumerable<TopRoom>> getTop5RoomInWeek(int supplierId, DateTime startDate, DateTime endDate)
+        {
+            var result = await (from detail in _dbContext.OrderHotelDetails
+                                join header in _dbContext.OrderHotelHeaders
+                                on detail.OrderHotelHeaderlId equals header.Id
+                                join hotel in _dbContext.hotels
+                                on detail.HotelId equals hotel.HotelId
+                                where header.CheckInDate >= startDate && header.CheckInDate <= endDate
+                                && hotel.SupplierId == supplierId && header.Process == "Success"
+                                group detail by new { detail.RoomId, detail.RoomName, detail.HotelName } into g
+                                select new TopRoom
+                                {
+                                    RoomId = g.Key.RoomId.Value,
+                                    RoomName = g.Key.RoomName,
+                                    HotelName = g.Key.HotelName,
+                                    OrderCount = g.Count()
+                                })
+                           .OrderByDescending(o => o.OrderCount)
+                           .Take(5)
+                           .ToListAsync();
+            return result;
+        }
+
+
+        public async Task<IEnumerable<Top5Room>> getTop5RoomOrders(int supplierId)
+        {
+            var topRooms = await _dbContext.OrderHotelDetails
+            .Where(o => o.Hotel.SupplierId == supplierId)
+            .GroupBy(o => new { o.RoomName, o.Hotel.HotelName })
+            .Select(g => new Top5Room
+            {
+                HotelName = g.Key.HotelName,
+                Name = g.Key.RoomName,
+                OrderCount = g.Count()
+            })
+            .OrderByDescending(t => t.OrderCount)
+            .Take(5)
+            .ToListAsync();
+
+            return topRooms;
+        }
     }
 }

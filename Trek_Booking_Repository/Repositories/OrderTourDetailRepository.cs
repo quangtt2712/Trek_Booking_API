@@ -23,5 +23,44 @@ namespace Trek_Booking_Repository.Repositories
             var check = await _dbContext.OrderTourDetails.Include(t => t.Tour).FirstOrDefaultAsync(t => t.OrderTourHeaderlId == orderTourHeaderId);
             return check;
         }
+
+        public async Task<IEnumerable<TopTour>> getTop5TourInWeek(int supplierId, DateTime startDate, DateTime endDate)
+        {
+            var result = await (from detail in _dbContext.OrderTourDetails
+                                join header in _dbContext.OrderTourHeaders
+                                on detail.OrderTourHeaderlId equals header.Id
+                                join tour in _dbContext.tours
+                                on detail.TourId equals tour.TourId
+                                where header.TourOrderDate >= startDate && header.TourOrderDate <= endDate
+                                && tour.SupplierId == supplierId && header.Process == "Success"
+                                group detail by new { detail.TourId, detail.TourName } into g
+                                select new TopTour
+                                {
+                                    TourId = g.Key.TourId,
+                                    TourName = g.Key.TourName,
+                                    OrderCount = g.Count()
+                                })
+                           .OrderByDescending(o => o.OrderCount)
+                           .Take(5)
+                           .ToListAsync();
+            return result;
+        }
+
+        public async Task<IEnumerable<Top5Tour>> getTop5TourOrders(int supplierId)
+        {
+            var top5Tours = await _dbContext.OrderTourDetails
+            .Where(o => o.Tour.SupplierId == supplierId)
+            .GroupBy(o => o.TourName)
+            .Select(g => new Top5Tour
+            {
+                TourName = g.Key,
+                OrderCount = g.Count()
+            })
+            .OrderByDescending(t => t.OrderCount)
+            .Take(5)
+            .ToListAsync();
+
+            return top5Tours;
+        }
     }
 }

@@ -84,5 +84,40 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             var check = await _repository.getPercentChangeRevenueFromLastWeek(supplierId.Value, DateTime.Now);
             return check;
         }
+        [HttpGet("/getCurrentWeekRevenueHotelBySupplierId")]
+        public async Task<IActionResult> getCurrentWeekRevenueHotelBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getCurrentWeekRevenueHotelBySupplierId(supplierId.Value);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
+
+        [HttpGet("/getCurrentMonthOfYearRevenueHotelBySupplierId")]
+        public async Task<IActionResult> getCurrentMonthOfYearRevenueHotelBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getCurrentMonthOfYearRevenueHotelBySupplierId(supplierId.Value);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
+
+        [HttpGet("/getCurrentQuarterOfYearRevenueHotelBySupplierId")]
+        public async Task<IActionResult> getCurrentQuarterOfYearRevenueHotelBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getCurrentQuarterOfYearRevenueHotelBySupplierId(supplierId.Value);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
     }
 }

@@ -17,5 +17,9 @@ namespace Trek_Booking_Repository.Repositories.IRepositories
         public Task<double> getPercentChangeFromLastWeek(int supplierId, DateTime date);
         public Task<decimal> getTotalRevenueHotelBySupplierId(int supplierId);
         public Task<decimal> getPercentChangeRevenueFromLastWeek(int supplierId, DateTime date);
+        public Task<IEnumerable<WeeklyRevenue>> getCurrentWeekRevenueHotelBySupplierId(int supplierId);
+        public Task<IEnumerable<MonthlyRevenue>> getCurrentMonthOfYearRevenueHotelBySupplierId(int supplierId);
+        public Task<IEnumerable<QuarterlyRevenue>> getCurrentQuarterOfYearRevenueHotelBySupplierId(int supplierId);
+
     }
 }

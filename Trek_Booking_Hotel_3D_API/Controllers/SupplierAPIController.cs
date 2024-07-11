@@ -25,7 +25,28 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             _roleRepository = roleRepository;
             _authMiddleWare = authMiddleWare;
         }
-
+        [HttpPut("/changePasswordSupplier")]
+        public async Task<IActionResult> changePasswordSupplier([FromBody] Supplier supplier)
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getSupplierbyId(supplierId.Value);
+            if (check == null)
+            {
+                return BadRequest("Not found Supplier");
+            }
+            await _repository.changePasswordSupplier(supplier);
+            return StatusCode(200, "Change Password Successfully!");
+        }
+        [HttpPost("/checkPasswordSupplier")]
+        public async Task<IActionResult> checkPasswordSupplier([FromBody] Supplier supplier)
+        {
+            var checkPass = await _repository.checkPasswordSupplier(supplier);
+            if (checkPass == null)
+            {
+                return BadRequest("Password is incorrect");
+            }
+            return Ok();
+        }
         [HttpPut("/toggleSupplierStatus")]
         public async Task<IActionResult> ToggleStatus([FromBody] ToggleSupplierRequest request)
         {

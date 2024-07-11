@@ -106,5 +106,103 @@ namespace Trek_Booking_Repository.Repositories
                 .SumAsync(t => t.TotalPrice ?? 0);
             return totalRevenue;
         }
+
+        public async Task<IEnumerable<WeeklyRevenue>> getCurrentWeekRevenueTourBySupplierId(int supplierId)
+        {
+            var today = DateTime.Today;
+            var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+            var endOfWeek = startOfWeek.AddDays(7);
+
+            var weeklyRevenue = await _dbContext.OrderTourHeaders
+                .Where(o => o.SupplierId == supplierId
+                       && o.Process == "Success"
+                       && o.TourOrderDate.HasValue
+                       && o.TourOrderDate.Value >= startOfWeek
+                       && o.TourOrderDate.Value < endOfWeek)
+                .GroupBy(o => o.TourOrderDate.Value.Date)
+                .Select(g => new WeeklyRevenue
+                {
+                    WeekStartDate = g.Key,
+                    Revenue = g.Sum(o => o.TotalPrice ?? 0)
+                })
+                .OrderBy(wr => wr.WeekStartDate)
+                .ToListAsync();
+            var allDays = Enumerable.Range(0, 7)
+                .Select(i => startOfWeek.AddDays(i))
+                .ToList();
+
+            var result = allDays.GroupJoin(weeklyRevenue,
+                day => day,
+                wr => wr.WeekStartDate,
+                (day, wrs) => wrs.FirstOrDefault() ?? new WeeklyRevenue { WeekStartDate = day, Revenue = 0 })
+                .OrderBy(wr => wr.WeekStartDate);
+
+            return result;
+        }
+
+        public async Task<IEnumerable<MonthlyRevenue>> getCurrentMonthOfYearRevenueTourBySupplierId(int supplierId)
+        {
+            var currentYear = DateTime.Today.Year;
+            var startOfYear = new DateTime(currentYear, 1, 1);
+            var endOfYear = startOfYear.AddYears(1);
+
+            var monthlyRevenue = await _dbContext.OrderTourHeaders
+                .Where(o => o.SupplierId == supplierId
+                       && o.Process == "Success"
+                       && o.TourOrderDate.HasValue
+                       && o.TourOrderDate.Value >= startOfYear
+                       && o.TourOrderDate.Value < endOfYear)
+                .GroupBy(o => o.TourOrderDate.Value.Month)
+                .Select(g => new MonthlyRevenue
+                {
+                    Month = g.Key,
+                    Revenue = g.Sum(o => o.TotalPrice ?? 0)
+                })
+                .OrderBy(mr => mr.Month)
+                .ToListAsync();
+
+            var allMonths = Enumerable.Range(1, 12)
+                .Select(month => new MonthlyRevenue
+                {
+                    Month = month,
+                    Revenue = monthlyRevenue.FirstOrDefault(mr => mr.Month == month)?.Revenue ?? 0
+                })
+                .OrderBy(mr => mr.Month);
+
+            return allMonths;
+        }
+
+        public async Task<IEnumerable<QuarterlyRevenue>> getCurrentQuarterOfYearRevenueTourBySupplierId(int supplierId)
+        {
+            var currentYear = DateTime.Today.Year;
+            var startOfYear = new DateTime(currentYear, 1, 1);
+            var endOfYear = startOfYear.AddYears(1);
+
+            var quarterlyRevenue = await _dbContext.OrderTourHeaders
+                .Where(o => o.SupplierId == supplierId
+                       && o.Process == "Success"
+                       && o.TourOrderDate.HasValue
+                       && o.TourOrderDate.Value >= startOfYear
+                       && o.TourOrderDate.Value < endOfYear)
+                .GroupBy(o => (o.TourOrderDate.Value.Month - 1) / 3 + 1)
+                .Select(g => new QuarterlyRevenue
+                {
+                    Quarter = g.Key,
+                    Revenue = g.Sum(o => o.TotalPrice ?? 0)
+                })
+                .OrderBy(qr => qr.Quarter)
+                .ToListAsync();
+
+
+            var allQuarters = Enumerable.Range(1, 4)
+                .Select(quarter => new QuarterlyRevenue
+                {
+                    Quarter = quarter,
+                    Revenue = quarterlyRevenue.FirstOrDefault(qr => qr.Quarter == quarter)?.Revenue ?? 0
+                })
+                .OrderBy(qr => qr.Quarter);
+
+            return allQuarters;
+        }
     }
 }

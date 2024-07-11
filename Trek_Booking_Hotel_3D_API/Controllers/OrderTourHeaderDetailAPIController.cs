@@ -99,5 +99,41 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             }
             return Ok(check);
         }
+
+
+        [HttpGet("/getCurrentWeekRevenueTourBySupplierId")]
+        public async Task<IActionResult> getCurrentWeekRevenueTourBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getCurrentWeekRevenueTourBySupplierId(supplierId.Value);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
+        [HttpGet("/getCurrentMonthOfYearRevenueTourBySupplierId")]
+        public async Task<IActionResult> getCurrentMonthOfYearRevenueTourBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getCurrentMonthOfYearRevenueTourBySupplierId(supplierId.Value);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
+
+        [HttpGet("/getCurrentQuarterOfYearRevenueTourBySupplierId")]
+        public async Task<IActionResult> getCurrentQuarterOfYearRevenueTourBySupplierId()
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getCurrentQuarterOfYearRevenueTourBySupplierId(supplierId.Value);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
     }
 }
