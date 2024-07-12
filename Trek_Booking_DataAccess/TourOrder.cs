@@ -15,25 +15,25 @@ namespace Trek_Booking_DataAccess
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int TourOrderId { get; set; }
         [ForeignKey("User")]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public User? User { get; set; }
 
         [ForeignKey("Supplier")]
-        public int SupplierId { get; set; }
+        public int? SupplierId { get; set; }
         public Supplier? Supplier { get; set; }
 
         [ForeignKey("Tour")]
-        public int TourId { get; set; }
+        public int? TourId { get; set; }
         public Tour? Tour { get; set; }
 
         [DataType(DataType.DateTime)]
         public DateTime? TourOrderDate { get; set; }
         [Required(ErrorMessage = "TourOrderQuantity is not null")]
-        public int TourOrderQuantity { get; set; }
+        public int? TourOrderQuantity { get; set; }
         [Required(ErrorMessage = "TourOrderQuantity is not null")]
-        public decimal TourTotalPrice { get; set; }
+        public decimal? TourTotalPrice { get; set; }
 
-        public bool IsConfirmed { get; set; }
-        public bool Status { get; set; }
+        public bool? IsConfirmed { get; set; }
+        public bool? Status { get; set; }
     }
 }

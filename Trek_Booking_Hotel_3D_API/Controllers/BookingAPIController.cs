@@ -73,12 +73,8 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
         [HttpPost("/createBooking")]
         public async Task<IActionResult> createBooking([FromBody] Booking booking)
         {
-            
-                
                 await _repository.createBooking(booking);
                 return StatusCode(201, "Create Successfully!");
-            
-            
         }
 
         [HttpPut("/deleteBooking/{bookingId}")]

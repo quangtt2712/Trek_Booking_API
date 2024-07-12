@@ -20,12 +20,12 @@ namespace Trek_Booking_Repository.Repositories
         }
         public async Task<IEnumerable<OrderHotelHeader>> getOrderHotelHeaderByUserId(int userId)
         {
-            var check = await _dbContext.OrderHotelHeaders.Where(u => u.UserId == userId && u.Process == "Success").ToListAsync();
+            var check = await _dbContext.OrderHotelHeaders.Where(u => u.UserId == userId && u.Process == "Paid").ToListAsync();
             return check;
         }
         public async Task<IEnumerable<OrderHotelHeader>> getOrderHotelHeaderBySupplierId(int supplierId)
         {
-            var check = await _dbContext.OrderHotelHeaders.Where(u => u.SupplierId == supplierId && u.Process== "Success").ToListAsync();
+            var check = await _dbContext.OrderHotelHeaders.Where(u => u.SupplierId == supplierId && u.Process== "Paid").ToListAsync();
             return check;
         }
         public async Task<int> countTotalOrderHotelBySupplierId(int supplierId)

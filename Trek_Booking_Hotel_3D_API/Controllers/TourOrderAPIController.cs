@@ -80,21 +80,10 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
         [HttpPost("/createTourOrder")]
         public async Task<IActionResult> createTourOrder([FromBody] TourOrder tourOrder)
         {
-            try
-            {
-                var bookingCartExists = await _repository.checkTourOders(tourOrder.UserId, tourOrder.TourId);
-                if (bookingCartExists)
-                {
-                    return BadRequest("TourOrder already exists for the specified userId and tourId");
-                }
-
+          
                 await _repository.createTourOrder(tourOrder);
                 return StatusCode(201, "Create Successfully!");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest("User or Tour not exits");
-            }
+           
         }
 
         [HttpPut("/deleteTourOrder")]
