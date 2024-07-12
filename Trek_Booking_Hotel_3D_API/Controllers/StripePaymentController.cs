@@ -147,7 +147,7 @@ namespace YourNamespace.Controllers
                     await _emailSender.SendEmailAsync(order.Email, "TrekBooking ", emailContent);
 
                     order.PaymentIntentId = session.PaymentIntentId;
-                    order.Process = "Success"; // Cập nhật trạng thái thành công
+                    order.Process = "Paid"; // Cập nhật trạng thái thành công
                     await _orderRepository.Update(order);
 
                     
@@ -317,7 +317,7 @@ namespace YourNamespace.Controllers
 
 
                     order.PaymentIntentId = session.PaymentIntentId;
-                    order.Process = "Success";
+                    order.Process = "Paid";
                     await _orderRepository.UpdateTour(order);
 
                     var orderDetails = await _context.OrderTourDetails

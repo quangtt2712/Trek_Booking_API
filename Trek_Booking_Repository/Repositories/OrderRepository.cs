@@ -62,7 +62,8 @@ namespace Trek_Booking_Repository.Repositories
                     Phone = objDTO.OrderHeader.Phone,
                     Requirement = objDTO.OrderHeader.Requirement,
                     Process = objDTO.OrderHeader.Process,
-                    Completed = objDTO.OrderHeader.Completed
+                    Completed = objDTO.OrderHeader.Completed,
+                    VoucherCode = objDTO.OrderHeader.VoucherCode,
                     
                 };
 
@@ -106,7 +107,8 @@ namespace Trek_Booking_Repository.Repositories
                         Phone = orderHeader.Phone,
                         Requirement = orderHeader.Requirement,
                        Process = orderHeader.Process,
-                       Completed = orderHeader.Completed
+                       Completed = orderHeader.Completed,
+                       VoucherCode = orderHeader.VoucherCode,
                     },
                     OrderDetails = orderDetails.Select(d => new OrderHotelDetail
                     {
