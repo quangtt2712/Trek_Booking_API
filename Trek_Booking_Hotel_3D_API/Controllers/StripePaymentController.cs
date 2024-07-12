@@ -142,6 +142,7 @@ namespace YourNamespace.Controllers
                 var order = await _orderRepository.GetOrderBySessionId(session.Id);
                 if (order != null)
                 {
+                 // mail
                     string emailContent = "Cảm ơn anh/chị đã booking tại web https://trek-booking.vercel.app  ";
                     await _emailSender.SendEmailAsync(order.Email, "TrekBooking ", emailContent);
 
@@ -309,6 +310,12 @@ namespace YourNamespace.Controllers
                 var order = await _orderRepository.GetOrderTourBySessionId(session.Id);
                 if (order != null)
                 {
+                    //mail tour
+                    // mail
+                    string emailContent = "Cảm ơn anh/chị đã booking tại web https://trek-booking.vercel.app  ";
+                    await _emailSender.SendEmailAsync(order.Email, "TrekBooking ", emailContent);
+
+
                     order.PaymentIntentId = session.PaymentIntentId;
                     order.Process = "Success";
                     await _orderRepository.UpdateTour(order);
