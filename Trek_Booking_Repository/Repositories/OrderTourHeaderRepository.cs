@@ -7,6 +7,7 @@ using Trek_Booking_DataAccess.Data;
 using Trek_Booking_DataAccess;
 using Trek_Booking_Repository.Repositories.IRepositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Trek_Booking_Repository.Repositories
 {
@@ -17,6 +18,29 @@ namespace Trek_Booking_Repository.Repositories
         public OrderTourHeaderRepository(ApplicationDBContext dBContext)
         {
             _dbContext = dBContext;
+        }
+
+        public async Task<IActionResult> ToggleStatus(ToggleOrderTourHeaderRequest request)
+        {
+            var orderTourHeader = await _dbContext.OrderTourHeaders.FindAsync(request.Id);
+            if (orderTourHeader == null)
+            {
+                return new NotFoundResult();
+            }
+            orderTourHeader.Completed = !orderTourHeader.Completed;
+            _dbContext.Entry(orderTourHeader).State = EntityState.Modified;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+
+                throw;
+
+            }
+            return new NoContentResult();
         }
         public async Task<IEnumerable<OrderTourHeader>> getOrderTourHeaderByUserId(int userId)
         {

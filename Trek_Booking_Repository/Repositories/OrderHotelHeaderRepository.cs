@@ -7,6 +7,7 @@ using Trek_Booking_DataAccess.Data;
 using Trek_Booking_DataAccess;
 using Trek_Booking_Repository.Repositories.IRepositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Trek_Booking_Repository.Repositories
 {
@@ -200,6 +201,29 @@ namespace Trek_Booking_Repository.Repositories
                 .OrderBy(qr => qr.Quarter);
 
             return allQuarters;
+        }
+
+        public async Task<IActionResult> ToggleStatus(ToggleOrderHotelHeaderRequest request)
+        {
+            var orderHotelHeader = await _dbContext.OrderHotelHeaders.FindAsync(request.Id);
+            if (orderHotelHeader == null)
+            {
+                return new NotFoundResult();
+            }
+            orderHotelHeader.Completed = !orderHotelHeader.Completed;
+            _dbContext.Entry(orderHotelHeader).State = EntityState.Modified;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+
+                throw;
+
+            }
+            return new NoContentResult();
         }
     }
 }

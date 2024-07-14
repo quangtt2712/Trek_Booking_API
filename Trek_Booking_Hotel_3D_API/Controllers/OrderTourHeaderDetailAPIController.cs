@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Trek_Booking_DataAccess;
 using Trek_Booking_Hotel_3D_API.Helper;
 using Trek_Booking_Repository.Repositories.IRepositories;
 
@@ -17,7 +18,26 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             _repository = repository;
             _authMiddleWare = authMiddleWare;
         }
-
+        [HttpPut("/toggleOrderTourHeaderStatus")]
+        public async Task<IActionResult> toggleOrderTourHeaderStatus([FromBody] ToggleOrderTourHeaderRequest request)
+        {
+            var result = await _repository.ToggleStatus(request);
+            if (result is NotFoundResult)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
+        [HttpGet("/getOrderTourHeaderBySupplierIdAdmin/{supplierId}")]
+        public async Task<IActionResult> getOrderTourHeaderBySupplierId(int supplierId)
+        {
+            var check = await _repository.getOrderTourHeaderBySupplierId(supplierId);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
         [HttpGet("/getOrderTourHeaderByUserId")]
         public async Task<IActionResult> getOrderTourHeaderByUserId()
         {

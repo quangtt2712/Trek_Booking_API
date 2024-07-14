@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,5 +21,6 @@ namespace Trek_Booking_Repository.Repositories.IRepositories
         public Task<IEnumerable<WeeklyRevenue>> getCurrentWeekRevenueTourBySupplierId(int supplierId);
         public Task<IEnumerable<MonthlyRevenue>> getCurrentMonthOfYearRevenueTourBySupplierId(int supplierId);
         public Task<IEnumerable<QuarterlyRevenue>> getCurrentQuarterOfYearRevenueTourBySupplierId(int supplierId);
+        Task<IActionResult> ToggleStatus(ToggleOrderTourHeaderRequest request);
     }
 }
