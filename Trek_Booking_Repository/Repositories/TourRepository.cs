@@ -104,5 +104,14 @@ namespace Trek_Booking_Repository.Repositories
             }
             return new NoContentResult();
         }
+
+        public async Task<IEnumerable<Tour>> searchTourByAddress(string address)
+        {
+            var tours = await _context.tours
+                .Where(h => EF.Functions.Like(h.TourAddress, $"%{address}%"))
+                .ToListAsync();
+
+            return tours;
+        }
     }
 }

@@ -106,5 +106,16 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             await _repository.deleteTour(tourId);
             return StatusCode(200, "Delele Successfully!");
         }
+
+        [HttpGet("/searchTourByAddress")]
+        public async Task<IActionResult> searchTourByAddress([FromQuery] string address)
+        {
+            var tours = await _repository.searchTourByAddress(address);
+            if (tours == null || !tours.Any())
+            {
+                return NotFound("No tours found in the specified city.");
+            }
+            return Ok(tours);
+        }
     }
 }
