@@ -18,6 +18,28 @@ namespace Trek_Booking_Repository.Repositories
         {
             _dbContext = dBContext;
         }
+
+        public async Task<IEnumerable<TourDateRange>> getMostFrequentlyTourBySupplierIdAndDateRange(int supplierId, DateTime startDate, DateTime endDate)
+        {
+            var result = await (from detail in _dbContext.OrderTourDetails
+                                join header in _dbContext.OrderTourHeaders
+                                on detail.OrderTourHeaderlId equals header.Id
+                                join tour in _dbContext.tours
+                                on detail.TourId equals tour.TourId
+                                where header.TourOrderDate >= startDate && header.TourOrderDate <= endDate
+                                && tour.SupplierId == supplierId && header.Process == "Success"
+                                group detail by new { detail.TourName } into g
+                                select new TourDateRange
+                                {
+                                    TourName = g.Key.TourName,
+                                    OrderCount = g.Count()
+                                })
+                           .OrderByDescending(o => o.OrderCount)
+                           //.Take(5)
+                           .ToListAsync();
+            return result;
+        }
+
         public async Task<OrderTourDetail> GetOrderTourDetailByOrderTourHeaderId(int orderTourHeaderId)
         {
             var check = await _dbContext.OrderTourDetails.Include(t => t.Tour).FirstOrDefaultAsync(t => t.OrderTourHeaderlId == orderTourHeaderId);

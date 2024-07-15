@@ -170,38 +170,7 @@ namespace Trek_Booking_Repository.Repositories
             return allMonths;
         }
 
-        public async Task<IEnumerable<QuarterlyRevenue>> getCurrentQuarterOfYearRevenueHotelBySupplierId(int supplierId)
-        {
-            var currentYear = DateTime.Today.Year;
-            var startOfYear = new DateTime(currentYear, 1, 1);
-            var endOfYear = startOfYear.AddYears(1);
-
-            var quarterlyRevenue = await _dbContext.OrderHotelHeaders
-                .Where(o => o.SupplierId == supplierId
-                       && o.Process == "Success"
-                       && o.CheckInDate.HasValue
-                       && o.CheckInDate.Value >= startOfYear
-                       && o.CheckInDate.Value < endOfYear)
-                .GroupBy(o => (o.CheckInDate.Value.Month - 1) / 3 + 1)
-                .Select(g => new QuarterlyRevenue
-                {
-                    Quarter = g.Key,
-                    Revenue = g.Sum(o => o.TotalPrice ?? 0)
-                })
-                .OrderBy(qr => qr.Quarter)
-                .ToListAsync();
-
-
-            var allQuarters = Enumerable.Range(1, 4)
-                .Select(quarter => new QuarterlyRevenue
-                {
-                    Quarter = quarter,
-                    Revenue = quarterlyRevenue.FirstOrDefault(qr => qr.Quarter == quarter)?.Revenue ?? 0
-                })
-                .OrderBy(qr => qr.Quarter);
-
-            return allQuarters;
-        }
+        
 
         public async Task<IActionResult> ToggleStatus(ToggleOrderHotelHeaderRequest request)
         {
@@ -224,6 +193,71 @@ namespace Trek_Booking_Repository.Repositories
 
             }
             return new NoContentResult();
+        }
+
+        public async Task<IEnumerable<QuarterlyRevenue>> getRevenueQuarterOfYearHotelBySupplierId(int supplierId, int year)
+        {
+            var revenue = await _dbContext.OrderHotelHeaders
+        .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.CheckInDate.Value.Year == year)
+        .GroupBy(s => (s.CheckInDate.Value.Month - 1) / 3 + 1)
+        .Select(g => new QuarterlyRevenue
+        {
+            Quarter = g.Key,
+            Revenue = g.Sum(s => s.TotalPrice ?? 0)
+        })
+        .ToListAsync();
+
+            // Ensure all quarters are present
+            var allQuarters = Enumerable.Range(1, 4).Select(q => new QuarterlyRevenue { Quarter = q, Revenue = 0 }).ToList();
+            foreach (var quarterRevenue in revenue)
+            {
+                var quarter = allQuarters.First(q => q.Quarter == quarterRevenue.Quarter);
+                quarter.Revenue = quarterRevenue.Revenue;
+            }
+
+            return allQuarters;
+        }
+        public async Task<IEnumerable<RevenueHotelDateRange>> getRevenueHotelBySupplierIdAndDateRange(int supplierId, DateTime startDate, DateTime endDate)
+        {
+            var revenue = await _dbContext.OrderHotelHeaders
+                .Where(o => o.SupplierId == supplierId
+                       && o.Process == "Success"
+                       && o.CheckInDate.HasValue
+                       && o.CheckInDate.Value >= startDate
+                       && o.CheckInDate.Value <= endDate)
+                .GroupBy(o => o.CheckInDate.Value.Date)
+                .Select(g => new RevenueHotelDateRange
+                {
+                    DateRange = g.Key,
+                    Revenue = g.Sum(o => o.TotalPrice ?? 0)
+                })
+                .OrderBy(r => r.DateRange)
+                .ToListAsync();
+
+            return revenue;
+        }
+
+        public async Task<IEnumerable<RevenueHotelMonthToYear>> getRevenueHotelMonthToYearBySupplierId(int supplierId, int year)
+        {
+            var revenue = await _dbContext.OrderHotelHeaders
+        .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.CheckInDate.Value.Year == year)
+        .GroupBy(s => s.CheckInDate.Value.Month)
+        .Select(g => new RevenueHotelMonthToYear
+        {
+            Month = g.Key,
+            Revenue = g.Sum(s => s.TotalPrice ?? 0)
+        })
+        .ToListAsync();
+
+            // Ensure all months are present
+            var allMonths = Enumerable.Range(1, 12).Select(m => new RevenueHotelMonthToYear { Month = m, Revenue = 0 }).ToList();
+            foreach (var monthRevenue in revenue)
+            {
+                var month = allMonths.First(m => m.Month == monthRevenue.Month);
+                month.Revenue = monthRevenue.Revenue;
+            }
+
+            return allMonths;
         }
     }
 }

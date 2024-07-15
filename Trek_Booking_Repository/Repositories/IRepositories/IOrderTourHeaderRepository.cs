@@ -20,7 +20,12 @@ namespace Trek_Booking_Repository.Repositories.IRepositories
         public Task<decimal> getPercentChangeRevenueTourFromLastWeek(int supplierId, DateTime date);
         public Task<IEnumerable<WeeklyRevenue>> getCurrentWeekRevenueTourBySupplierId(int supplierId);
         public Task<IEnumerable<MonthlyRevenue>> getCurrentMonthOfYearRevenueTourBySupplierId(int supplierId);
-        public Task<IEnumerable<QuarterlyRevenue>> getCurrentQuarterOfYearRevenueTourBySupplierId(int supplierId);
+       
+
+
+        public Task<IEnumerable<QuarterlyRevenue>> getRevenueQuarterOfYearTourBySupplierId(int supplierId, int year);
+        public Task<IEnumerable<RevenueTourDateRange>> getRevenueTourBySupplierIdAndDateRange(int supplierId, DateTime startDate, DateTime endDate);
+        public Task<IEnumerable<RevenueTourMonthToYear>> getRevenueTourMonthToYearBySupplierId(int supplierId, int year);
         Task<IActionResult> ToggleStatus(ToggleOrderTourHeaderRequest request);
     }
 }

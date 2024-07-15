@@ -143,17 +143,50 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             }
             return Ok(check);
         }
-
-        [HttpGet("/getCurrentQuarterOfYearRevenueTourBySupplierId")]
-        public async Task<IActionResult> getCurrentQuarterOfYearRevenueTourBySupplierId()
+        [HttpGet("/getRevenueQuarterOfYearTourBySupplierId")]
+        public async Task<IActionResult> getRevenueQuarterOfYearTourBySupplierId(int year)
         {
             var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
-            var check = await _repository.getCurrentQuarterOfYearRevenueTourBySupplierId(supplierId.Value);
+            var check = await _repository.getRevenueQuarterOfYearTourBySupplierId(supplierId.Value, year);
             if (check == null)
             {
                 return NotFound("Not Found");
             }
             return Ok(check);
         }
+
+        [HttpGet("/getRevenueTourBySupplierIdAndDateRange")]
+        public async Task<IActionResult> getRevenueTourBySupplierIdAndDateRange(DateTime startDate, DateTime endDate)
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+
+            if (endDate < startDate || (endDate - startDate).TotalDays > 31)
+            {
+                return BadRequest("The date range must be within one month.");
+            }
+
+            try
+            {
+                var revenue = await _repository.getRevenueTourBySupplierIdAndDateRange(supplierId.Value, startDate, endDate);
+                return Ok(revenue);
+            }
+            catch (Exception ex)
+            {
+                return (IActionResult)ex;
+            }
+        }
+
+        [HttpGet("/getRevenueTourMonthToYearBySupplierId")]
+        public async Task<IActionResult> getRevenueTourMonthToYearBySupplierId(int year)
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getRevenueTourMonthToYearBySupplierId(supplierId.Value, year);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
+
     }
 }

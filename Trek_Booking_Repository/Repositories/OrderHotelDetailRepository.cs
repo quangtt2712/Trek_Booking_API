@@ -17,6 +17,29 @@ namespace Trek_Booking_Repository.Repositories
         {
             _dbContext = dBContext;
         }
+
+        public async Task<IEnumerable<RoomDateRange>> getMostFrequentlyRoomBySupplierIdAndDateRange(int supplierId, DateTime startDate, DateTime endDate)
+        {
+            var result = await (from detail in _dbContext.OrderHotelDetails
+                                join header in _dbContext.OrderHotelHeaders
+                                on detail.OrderHotelHeaderlId equals header.Id
+                                join hotel in _dbContext.hotels
+                                on detail.HotelId equals hotel.HotelId
+                                where header.CheckInDate >= startDate && header.CheckInDate <= endDate
+                                && hotel.SupplierId == supplierId && header.Process == "Success"
+                                group detail by new { detail.RoomName, detail.HotelName } into g
+                                select new RoomDateRange
+                                {
+                                    RoomName = g.Key.RoomName,
+                                    HotelName = g.Key.HotelName,
+                                    OrderCount = g.Count()
+                                })
+                           .OrderByDescending(o => o.OrderCount)
+                           //.Take(5)
+                           .ToListAsync();
+            return result;
+        }
+
         public async Task<OrderHotelDetail> getOrderHotelDetailByOrderHotelHeaderId(int orderHotelHeaderId)
         {
             var check = await _dbContext.OrderHotelDetails.FirstOrDefaultAsync(t => t.OrderHotelHeaderlId == orderHotelHeaderId);

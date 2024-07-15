@@ -196,37 +196,70 @@ namespace Trek_Booking_Repository.Repositories
             return allMonths;
         }
 
-        public async Task<IEnumerable<QuarterlyRevenue>> getCurrentQuarterOfYearRevenueTourBySupplierId(int supplierId)
-        {
-            var currentYear = DateTime.Today.Year;
-            var startOfYear = new DateTime(currentYear, 1, 1);
-            var endOfYear = startOfYear.AddYears(1);
 
-            var quarterlyRevenue = await _dbContext.OrderTourHeaders
+        public async Task<IEnumerable<QuarterlyRevenue>> getRevenueQuarterOfYearTourBySupplierId(int supplierId, int year)
+        {
+            var revenue = await _dbContext.OrderTourHeaders
+        .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.TourOrderDate.Value.Year == year)
+        .GroupBy(s => (s.TourOrderDate.Value.Month - 1) / 3 + 1)
+        .Select(g => new QuarterlyRevenue
+        {
+            Quarter = g.Key,
+            Revenue = g.Sum(s => s.TotalPrice ?? 0)
+        })
+        .ToListAsync();
+
+            // Ensure all quarters are present
+            var allQuarters = Enumerable.Range(1, 4).Select(q => new QuarterlyRevenue { Quarter = q, Revenue = 0 }).ToList();
+            foreach (var quarterRevenue in revenue)
+            {
+                var quarter = allQuarters.First(q => q.Quarter == quarterRevenue.Quarter);
+                quarter.Revenue = quarterRevenue.Revenue;
+            }
+
+            return allQuarters;
+        }
+        public async Task<IEnumerable<RevenueTourDateRange>> getRevenueTourBySupplierIdAndDateRange(int supplierId, DateTime startDate, DateTime endDate)
+        {
+            var revenue = await _dbContext.OrderTourHeaders
                 .Where(o => o.SupplierId == supplierId
                        && o.Process == "Success"
                        && o.TourOrderDate.HasValue
-                       && o.TourOrderDate.Value >= startOfYear
-                       && o.TourOrderDate.Value < endOfYear)
-                .GroupBy(o => (o.TourOrderDate.Value.Month - 1) / 3 + 1)
-                .Select(g => new QuarterlyRevenue
+                       && o.TourOrderDate.Value >= startDate
+                       && o.TourOrderDate.Value <= endDate)
+                .GroupBy(o => o.TourOrderDate.Value.Date)
+                .Select(g => new RevenueTourDateRange
                 {
-                    Quarter = g.Key,
+                    DateRange = g.Key,
                     Revenue = g.Sum(o => o.TotalPrice ?? 0)
                 })
-                .OrderBy(qr => qr.Quarter)
+                .OrderBy(r => r.DateRange)
                 .ToListAsync();
 
+            return revenue;
+        }
 
-            var allQuarters = Enumerable.Range(1, 4)
-                .Select(quarter => new QuarterlyRevenue
-                {
-                    Quarter = quarter,
-                    Revenue = quarterlyRevenue.FirstOrDefault(qr => qr.Quarter == quarter)?.Revenue ?? 0
-                })
-                .OrderBy(qr => qr.Quarter);
+        public async Task<IEnumerable<RevenueTourMonthToYear>> getRevenueTourMonthToYearBySupplierId(int supplierId, int year)
+        {
+            var revenue = await _dbContext.OrderTourHeaders
+        .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.TourOrderDate.Value.Year == year)
+        .GroupBy(s => s.TourOrderDate.Value.Month)
+        .Select(g => new RevenueTourMonthToYear
+        {
+            Month = g.Key,
+            Revenue = g.Sum(s => s.TotalPrice ?? 0)
+        })
+        .ToListAsync();
 
-            return allQuarters;
+            // Ensure all months are present
+            var allMonths = Enumerable.Range(1, 12).Select(m => new RevenueTourMonthToYear { Month = m, Revenue = 0 }).ToList();
+            foreach (var monthRevenue in revenue)
+            {
+                var month = allMonths.First(m => m.Month == monthRevenue.Month);
+                month.Revenue = monthRevenue.Revenue;
+            }
+
+            return allMonths;
         }
     }
 }

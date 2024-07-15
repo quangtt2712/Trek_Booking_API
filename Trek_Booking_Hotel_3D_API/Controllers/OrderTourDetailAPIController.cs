@@ -56,5 +56,17 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             return Ok(check);
         }
 
+        [HttpGet("/getMostFrequentlyTourBySupplierIdAndDateRange")]
+        public async Task<IActionResult> getMostFrequentlyTourBySupplierIdAndDateRange(DateTime startDate, DateTime endDate)
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getMostFrequentlyTourBySupplierIdAndDateRange(supplierId.Value, startDate, endDate);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
+
     }
 }

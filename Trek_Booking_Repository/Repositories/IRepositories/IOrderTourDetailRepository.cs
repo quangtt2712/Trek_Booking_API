@@ -13,5 +13,7 @@ namespace Trek_Booking_Repository.Repositories.IRepositories
         public Task<OrderTourDetail> GetOrderTourDetailByOrderTourHeaderId(int orderTourHeaderId);
         public Task<IEnumerable<Top5Tour>> getTop5TourOrders(int supplierId);
         public Task<IEnumerable<TopTour>> getTop5TourInWeek(int supplierId, DateTime startDate, DateTime endDate);
+
+        public Task<IEnumerable<TourDateRange>> getMostFrequentlyTourBySupplierIdAndDateRange(int supplierId, DateTime startDate, DateTime endDate);
     }
 }

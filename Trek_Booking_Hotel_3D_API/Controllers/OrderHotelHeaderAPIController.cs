@@ -130,11 +130,44 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             return Ok(check);
         }
 
-        [HttpGet("/getCurrentQuarterOfYearRevenueHotelBySupplierId")]
-        public async Task<IActionResult> getCurrentQuarterOfYearRevenueHotelBySupplierId()
+        [HttpGet("/getRevenueQuarterOfYearHotelBySupplierId")]
+        public async Task<IActionResult> getRevenueQuarterOfYearHotelBySupplierId(int year)
         {
             var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
-            var check = await _repository.getCurrentQuarterOfYearRevenueHotelBySupplierId(supplierId.Value);
+            var check = await _repository.getRevenueQuarterOfYearHotelBySupplierId(supplierId.Value, year);
+            if (check == null)
+            {
+                return NotFound("Not Found");
+            }
+            return Ok(check);
+        }
+        [HttpGet("/getRevenueHotelBySupplierIdAndDateRange")]
+        public async Task<IActionResult> getRevenueHotelBySupplierIdAndDateRange(DateTime startDate, DateTime endDate)
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+
+            if (endDate < startDate || (endDate - startDate).TotalDays > 31)
+            {
+                return BadRequest("The date range must be within one month.");
+            }
+
+            try
+            {
+                var revenue = await _repository.getRevenueHotelBySupplierIdAndDateRange(supplierId.Value, startDate, endDate);
+                return Ok(revenue);
+            }
+            catch (Exception ex)
+            {
+                return (IActionResult)ex;
+            }
+        }
+
+     
+        [HttpGet("/getRevenueHotelMonthToYearBySupplierId")]
+        public async Task<IActionResult> getRevenueHotelMonthToYearBySupplierId(int year)
+        {
+            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+            var check = await _repository.getRevenueHotelMonthToYearBySupplierId(supplierId.Value, year);
             if (check == null)
             {
                 return NotFound("Not Found");
