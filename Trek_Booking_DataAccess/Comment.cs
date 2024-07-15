@@ -34,5 +34,7 @@ namespace Trek_Booking_DataAccess
 
         public User? User { get; set; }
 
+        public int? OrderHotelHeaderId { get; set; }
+
     }
 }

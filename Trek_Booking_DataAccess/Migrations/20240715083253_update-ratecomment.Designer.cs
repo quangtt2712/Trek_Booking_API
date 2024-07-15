@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Trek_Booking_DataAccess.Data;
 
@@ -11,9 +12,11 @@ using Trek_Booking_DataAccess.Data;
 namespace Trek_Booking_DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240715083253_update-ratecomment")]
+    partial class updateratecomment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -256,7 +259,7 @@ namespace Trek_Booking_DataAccess.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("OrderHotelHeaderId")
+                    b.Property<int>("OrderHotelHeaderId")
                         .HasColumnType("int");
 
                     b.Property<int>("UserId")
@@ -482,7 +485,7 @@ namespace Trek_Booking_DataAccess.Migrations
                     b.Property<int>("HotelId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("OrderHotelHeaderId")
+                    b.Property<int>("OrderHotelHeaderId")
                         .HasColumnType("int");
 
                     b.Property<int>("RateValue")

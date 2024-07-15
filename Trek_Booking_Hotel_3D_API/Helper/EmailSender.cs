@@ -13,7 +13,7 @@ namespace Trek_Booking_Hotel_3D_API.Helper
             {
 
                 var emailToSend = new MimeMessage();
-                emailToSend.From.Add(MailboxAddress.Parse("huynvce161149@fpt.edu.vn"));
+                emailToSend.From.Add(MailboxAddress.Parse("trekbookingvn@gmail.com"));
                 emailToSend.To.Add(MailboxAddress.Parse(email));
                 emailToSend.Subject = subject;
                 emailToSend.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = htmlMessage };
@@ -21,7 +21,7 @@ namespace Trek_Booking_Hotel_3D_API.Helper
                 //send email
                 using var emailClient = new SmtpClient();
                 emailClient.Connect("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-                emailClient.Authenticate("huynvce161149@fpt.edu.vn", "xmidnbeoomvtsxrz");
+                emailClient.Authenticate("trekbookingvn@gmail.com", "rpwgvdubxuyquqel");
                 emailClient.Send(emailToSend);
                 emailClient.Disconnect(true);
             }
