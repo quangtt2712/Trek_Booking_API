@@ -24,34 +24,31 @@ namespace Trek_Booking_Repository.Repositories
 
         public async Task<Rate> rateHotel(Rate rate)
         {
-            //var bookingId = comment.BookingId;
-            //var userId = comment.UserId;
-            //var hotelId = comment.HotelId;
-            //// Kiểm tra xem người dùng đã đặt phòng chưa
-            //var checkBooked = await _context.bookings.FirstOrDefaultAsync(b => b.BookingId == bookingId && b.UserId == userId && b.HotelId == hotelId);
-            //if (checkBooked == null)
-            //{
-            //    // Nếu người dùng chưa đặt phòng, bạn có thể throw một Exception hoặc xử lý theo ý của bạn
-            //    throw new Exception("User has not booked this room.");
-            //}
+            var bookingId = rate.BookingId;
+            var orderHotelHeaderId = rate.OrderHotelHeaderId;
+            var userId = rate.UserId;
+            var hotelId = rate.HotelId;
+            // Kiểm tra xem người dùng đã đặt phòng chưa
+            var checkBooked = await _context.OrderHotelHeaders.FirstOrDefaultAsync(b => b.Id == orderHotelHeaderId && b.UserId == userId);
+            if (checkBooked == null)
+            {
+                // Nếu người dùng chưa đặt phòng, bạn có thể throw một Exception hoặc xử lý theo ý của bạn
+                throw new Exception("User has not booked this room.");
+            }
 
-            //// Người dùng đã đặt phòng, tiến hành tạo bình luận
-            //var newComment = new Comment
-            //{
-            //    BookingId = comment.BookingId,
-            //    Message = comment.Message,
-            //    DateSubmitted = DateTime.Now,
-            //    HotelId = comment.HotelId,
-            //    UserId = comment.UserId
-            //};
-
-            //_context.comments.Add(newComment);
-            //await _context.SaveChangesAsync();
-
+            // Người dùng đã đặt phòng, tiến hành tạo bình luận
+            var newRate = new Rate
+            {
+                BookingId = rate.BookingId,
+                OrderHotelHeaderId = rate.OrderHotelHeaderId,
+                RateValue = rate.RateValue,
+                HotelId = rate.HotelId,
+                UserId = rate.UserId
+            };
+            _context.rates.Add(newRate);
+            await _context.SaveChangesAsync();
             return null;
         }
-
-
 
         public async Task<IEnumerable<Rate>> getRateByHotelId(int hotelId)
         {

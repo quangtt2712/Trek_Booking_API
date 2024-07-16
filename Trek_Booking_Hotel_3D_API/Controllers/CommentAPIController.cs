@@ -18,13 +18,26 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             _authMiddleWare = authMiddleWare;
         }
 
+
+        [HttpGet("/checkFeedback/{orderHotelHeaderId}")]
+        public async Task<IActionResult> CheckFeedback(int orderHotelHeaderId)
+        {
+            var userId = _authMiddleWare.GetUserIdFromToken(HttpContext);
+
+            if (userId != null && userId != 0)
+            {
+                var hasFeedback = await _repository.checkFeedBack(orderHotelHeaderId, userId.Value);
+                return Ok(hasFeedback);
+            }
+            else
+            {
+                return BadRequest(403);
+            }
+
+        }
         [HttpPost("/createComment")]
         public async Task<IActionResult> createComment([FromBody] Comment comment)
         {
-            //if (comment == null)
-            //{
-            //    return BadRequest();
-            //}
             var create = await _repository.createComment(comment);
             return StatusCode(201, "Create Successfully!");
         }

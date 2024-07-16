@@ -22,13 +22,21 @@ namespace Trek_Booking_Repository.Repositories
 
 
 
+        public async Task<bool> checkFeedBack(int orderHotelHeaderId, int userId)
+        {
+            var hasFeedback = await _context.comments
+                .AnyAsync(comment => comment.OrderHotelHeaderId == orderHotelHeaderId && comment.UserId == userId);
+            return hasFeedback;
+        }
+
         public async Task<Comment> createComment(Comment comment)
         {
             var bookingId = comment.BookingId;
             var userId = comment.UserId;
             var hotelId = comment.HotelId;
+            var orderHotelHeaderId = comment.OrderHotelHeaderId;
             // Kiểm tra xem người dùng đã đặt phòng chưa
-            var checkBooked = await _context.bookings.FirstOrDefaultAsync(b => b.BookingId == bookingId && b.UserId == userId && b.HotelId == hotelId);
+            var checkBooked = await _context.OrderHotelHeaders.FirstOrDefaultAsync(b => b.Id == orderHotelHeaderId && b.UserId == userId);
             if (checkBooked == null)
             {
                 // Nếu người dùng chưa đặt phòng, bạn có thể throw một Exception hoặc xử lý theo ý của bạn
@@ -39,6 +47,7 @@ namespace Trek_Booking_Repository.Repositories
             var newComment = new Comment
             {
                 BookingId = comment.BookingId,
+                OrderHotelHeaderId = comment.OrderHotelHeaderId,
                 Message = comment.Message,
                 DateSubmitted = DateTime.Now,
                 HotelId = comment.HotelId,
@@ -50,7 +59,6 @@ namespace Trek_Booking_Repository.Repositories
 
             return newComment;
         }
-
 
 
         public async Task<IEnumerable<Comment>> getCommentByHotelId(int hotelId)

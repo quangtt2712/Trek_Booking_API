@@ -13,6 +13,8 @@ namespace Trek_Booking_Repository.Repositories.IRepositories
         public Task<IEnumerable<Comment>> getCommentByHotelId(int hotelId);
 
         public Task<IEnumerable<Comment>> getCommentByUserId(int userId);
-        
+
+        public Task<bool> checkFeedBack(int orderHotelHeaderId, int userId);
+
     }
 }
