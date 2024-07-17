@@ -55,8 +55,20 @@ namespace Trek_Booking_API.Controllers
         [HttpPost("/createRoomService")]
         public async Task<ActionResult<RoomService>> CreateRoomService(RoomService roomService)
         {
-            var createdRoomService = await _roomServiceRepository.createRoomService(roomService);
-            return CreatedAtAction(nameof(GetRoomServices), new { roomId = createdRoomService.RoomId, serviceId = createdRoomService.ServiceId }, createdRoomService);
+            var existingRoomService = await _roomServiceRepository.GetRoomServiceByRoomIdAndServiceId(roomService.RoomId, roomService.ServiceId);
+
+            if (existingRoomService != null)
+            {
+                
+                await _roomServiceRepository.UpdateRoomService(existingRoomService);
+                return Ok(existingRoomService);
+            }
+            else
+            {
+                // Create a new room service
+                var createdRoomService = await _roomServiceRepository.createRoomService(roomService);
+                return CreatedAtAction(nameof(GetRoomServices), new { roomId = createdRoomService.RoomId, serviceId = createdRoomService.ServiceId }, createdRoomService);
+            }
         }
 
         // DELETE: api/RoomService

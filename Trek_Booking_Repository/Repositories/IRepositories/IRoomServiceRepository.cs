@@ -14,5 +14,7 @@ namespace Trek_Booking_Repository.Repositories.IRepositories
         public Task<IEnumerable<Services>> getServicebyRoomId(int roomId);
         public Task<IEnumerable<Room>> getRoombyServiceId(int serviceId);
         public Task<IEnumerable<RoomService>> getRoomServices();
+        public Task<RoomService> GetRoomServiceByRoomIdAndServiceId(int roomId, int serviceId);
+        public Task<RoomService> UpdateRoomService(RoomService roomService);
     }
 }

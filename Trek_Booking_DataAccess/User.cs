@@ -31,6 +31,7 @@ namespace Trek_Booking_DataAccess
         public string? Avatar { get; set; }
         public string? Password { get; set; }
         public bool Status { get; set; }
+        public DateTime CreateDate { get; set; }
         public bool IsVerify { get; set; }
         [ForeignKey("Role")]
         public int RoleId { get; set; }

@@ -37,6 +37,8 @@ namespace Trek_Booking_DataAccess
 
         public bool Status { get; set; }
         public bool IsVerify { get; set; }
+        public DateTime CreateDate { get; set; }
+        public double Commission { get; set; }
         public string? BankName { get; set; }
         public string? BankAccount { get; set; }
         public string? BankNumber { get; set; }

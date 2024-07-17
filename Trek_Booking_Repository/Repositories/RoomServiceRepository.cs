@@ -19,7 +19,19 @@ namespace Trek_Booking_Repository.Repositories
         {
             _context = context;
         }
-       
+
+        public async Task<RoomService> GetRoomServiceByRoomIdAndServiceId(int roomId, int serviceId)
+        {
+            return await _context.roomServices
+                .FirstOrDefaultAsync(rs => rs.RoomId == roomId && rs.ServiceId == serviceId);
+        }
+
+        public async Task<RoomService> UpdateRoomService(RoomService roomService)
+        {
+            _context.roomServices.Update(roomService);
+            await _context.SaveChangesAsync();
+            return roomService;
+        }
 
         public async Task<RoomService> createRoomService(RoomService roomService)
         {
@@ -73,6 +85,6 @@ namespace Trek_Booking_Repository.Repositories
             return services;
         }
 
-       
+
     }
 }
