@@ -98,11 +98,11 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
         }
 
         [HttpGet("/getRoomAvailability")]
-        public async Task<ActionResult<IEnumerable<RoomAvailabilityDto>>> GetRoomAvailability(DateTime checkInDate, DateTime checkOutDate)
+        public async Task<ActionResult<IEnumerable<RoomAvailabilityDto>>> GetRoomAvailability(int hotelId, DateTime checkInDate, DateTime checkOutDate)
         {
             try
             {
-                var availableRooms = await _repository.SearchRoomSchedule(checkInDate, checkOutDate);
+                var availableRooms = await _repository.SearchRoomSchedule(hotelId, checkInDate, checkOutDate);
                 if (availableRooms == null || !availableRooms.Any())
                 {
                     return NotFound("No available rooms found for the given dates.");

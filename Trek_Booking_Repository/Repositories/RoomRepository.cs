@@ -93,11 +93,11 @@ namespace Trek_Booking_Repository.Repositories
             return null;
         }
 
-        public async Task<IEnumerable<RoomAvailabilityDto>> SearchRoomSchedule(DateTime checkInDate, DateTime checkOutDate)
+        public async Task<IEnumerable<RoomAvailabilityDto>> SearchRoomSchedule(int hotelId, DateTime checkInDate, DateTime checkOutDate)
         {
             var rooms = await _context.rooms
                 .Include(r => r.bookings)
-                .Where(r => r.RoomStatus == true)
+                .Where(r => r.RoomStatus == true && r.HotelId == hotelId)
                 .ToListAsync();
 
             var availableRooms = rooms.Select(r => new RoomAvailabilityDto
