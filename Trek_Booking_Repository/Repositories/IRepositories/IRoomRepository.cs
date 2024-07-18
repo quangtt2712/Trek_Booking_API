@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Trek_Booking_DataAccess;
+using Trek_Booking_DataAccess.Data;
 
 namespace Trek_Booking_Repository.Repositories.IRepositories
 {
@@ -17,5 +18,6 @@ namespace Trek_Booking_Repository.Repositories.IRepositories
         public Task<IEnumerable<Room>> getRoombyHotelId(int hotelId);
         public Task<bool> checkExitsName(string name);
         public Task<int> recoverRoomDeleted(int roomId);
+        public Task<IEnumerable<RoomAvailabilityDto>> SearchRoomSchedule(DateTime checkInDate, DateTime checkOutDate);
     }
 }

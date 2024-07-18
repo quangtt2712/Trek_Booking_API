@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Trek_Booking_DataAccess;
+using Trek_Booking_DataAccess.Data;
 using Trek_Booking_Repository.Repositories.IRepositories;
 
 namespace Trek_Booking_Hotel_3D_API.Controllers
@@ -94,6 +95,25 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             }
             await _repository.recoverRoomDeleted(roomId);
             return StatusCode(200, "Recover Successfully!");
+        }
+
+        [HttpGet("/getRoomAvailability")]
+        public async Task<ActionResult<IEnumerable<RoomAvailabilityDto>>> GetRoomAvailability(DateTime checkInDate, DateTime checkOutDate)
+        {
+            try
+            {
+                var availableRooms = await _repository.SearchRoomSchedule(checkInDate, checkOutDate);
+                if (availableRooms == null || !availableRooms.Any())
+                {
+                    return NotFound("No available rooms found for the given dates.");
+                }
+                return Ok(availableRooms);
+            }
+            catch (Exception ex)
+            {
+                // Log the exception (not shown here for simplicity)
+                return StatusCode(500, "Internal server error.");
+            }
         }
     }
 }

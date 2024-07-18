@@ -78,6 +78,7 @@ namespace Trek_Booking_Repository.Repositories
             var supplier = new Supplier
             {
                 SupplierName = registerRequest.SupplierName,
+                CreateDate = DateTime.Now,
                 Email = registerRequest.Email,
                 Password = passwordHash,
                 Address = registerRequest.Address,

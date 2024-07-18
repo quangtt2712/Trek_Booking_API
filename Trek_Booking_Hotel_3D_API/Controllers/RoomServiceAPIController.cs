@@ -26,6 +26,7 @@ namespace Trek_Booking_API.Controllers
         }
 
         // GET: api/RoomService/room/{roomId}/services
+
         [HttpGet("room/{roomId}/services")]
         public async Task<ActionResult<IEnumerable<Services>>> GetServicebyRoomId(int roomId)
         {

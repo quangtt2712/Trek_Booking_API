@@ -101,6 +101,7 @@ namespace Trek_Booking_Repository.Repositories
             var user = new User
             {
                 UserName = registerRequest.UserName,
+                CreateDate = DateTime.Now,
                 Email = registerRequest.Email,
                 Password = passwordHash,
                 Address = registerRequest.Address,
