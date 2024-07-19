@@ -54,6 +54,18 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             return Ok(comments);
         }
 
+        [HttpGet("/getCommentByOrderHotelHeaderId/{OrderHotelHeaderId}")]
+        public async Task<IActionResult> getCommentByOrderHotelHeaderId(int OrderHotelHeaderId)
+        {
+
+            var comments = await _repository.getCommentByOrderHotelHeaderId(OrderHotelHeaderId);
+            if (comments == null)
+            {
+                return NotFound("Not Found"); // Return OK with null data if no comments found
+            }
+            return Ok(comments);
+        }
+
 
 
         [HttpGet("/getCommentByUserId")]

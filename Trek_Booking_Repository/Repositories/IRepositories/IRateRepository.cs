@@ -14,6 +14,8 @@ namespace Trek_Booking_Repository.Repositories.IRepositories
 
         public Task<IEnumerable<Rate>> getRateByUserId(int userId);
 
+        public Task<IEnumerable<Rate>> getRateByOrderHotelHeaderId(int OrderHotelHeaderId);
+
         public Task<float> getTotalRateValueByHotelId(int hotelId);
 
     }

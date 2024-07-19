@@ -70,6 +70,11 @@ namespace Trek_Booking_Repository.Repositories
             return comments;
         }
 
+        public async Task<IEnumerable<Comment>> getCommentByOrderHotelHeaderId(int OrderHotelHeaderId)
+        {
+            var comments = await _context.comments.Where(t => t.OrderHotelHeaderId == OrderHotelHeaderId).ToListAsync();
+            return comments;
+        }
 
 
         public async Task<IEnumerable<Comment>> getCommentByUserId(int userId)
