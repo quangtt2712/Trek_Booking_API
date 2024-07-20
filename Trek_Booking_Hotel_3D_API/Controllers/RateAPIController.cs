@@ -25,6 +25,18 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             return StatusCode(201, "Rating Successfully!");
         }
 
+        [HttpGet("/getRateByOrderHotelHeaderId/{OrderHotelHeaderId}")]
+        public async Task<IActionResult> getRateByOrderHotelHeaderId(int OrderHotelHeaderId)
+        {
+
+            var rates = await _repository.getRateByOrderHotelHeaderId(OrderHotelHeaderId);
+            if (rates == null)
+            {
+                return NotFound("Not Found"); // Return OK with null data if no rates found
+            }
+            return Ok(rates);
+        }
+
         [HttpGet("/getRateByHotelId/{hotelId}")]
         public async Task<IActionResult> getRateByHotelId(int hotelId)
         {
