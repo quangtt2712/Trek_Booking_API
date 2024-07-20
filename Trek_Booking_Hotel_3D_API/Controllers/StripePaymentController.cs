@@ -169,6 +169,7 @@ namespace YourNamespace.Controllers
         </div>
         <div class='content'>
             <p>Dear {order.FullName},</p>
+<p>You have successfully booked a room: {orderDetail.RoomName} at the hotel:  {orderDetail.HotelName}.</p>
 <p><a href='https://trek-booking.vercel.app/trekbooking/list_hotel/{orderDetail.HotelId}'>View this hotel</a> .</p>
 <p>Check in date: {order.CheckInDate}</p>
 <p>Check out date: {order.CheckOutDate}</p>
