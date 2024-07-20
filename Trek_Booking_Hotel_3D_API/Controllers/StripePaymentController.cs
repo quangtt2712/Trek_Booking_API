@@ -143,70 +143,67 @@ namespace YourNamespace.Controllers
                 var order = await _orderRepository.GetOrderBySessionId(session.Id);
                 if (order != null)
                 {
-                    var orderDetail = await _orderHotelDetailRepository.getOrderHotelDetailByOrderHotelHeaderId(order.Id);
+                    //                    var orderDetail = await _orderHotelDetailRepository.getOrderHotelDetailByOrderHotelHeaderId(order.Id);
 
-                        string emailContent = $@"
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset='UTF-8'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <style>
-        body {{ font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }}
-        .container {{ width: 80%; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }}
-        .header {{ background: #4CAF50; color: white; padding: 10px 0; text-align: center; }}
-        .content {{ margin: 20px 0; }}
-        .content p {{ line-height: 1.6; }}
-        .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #777; }}
-        .footer a {{ color: #4CAF50; text-decoration: none; }}
-        .button {{ display: inline-block; padding: 10px 20px; font-size: 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 5px; }}
-    </style>
-</head>
-<body>
-    <div class='container'>
-        <div class='header'>
-            <h1>Thank You for Your Booking!</h1>
-        </div>
-        <div class='content'>
-            <p>Dear {order.FullName},</p>
-<p>You have successfully booked a room: {orderDetail.RoomName} at the hotel:  {orderDetail.HotelName}.</p>
-<p><a href='https://trek-booking.vercel.app/trekbooking/list_hotel/{orderDetail.HotelId}'>View this hotel</a> .</p>
-<p>Check in date: {order.CheckInDate}</p>
-<p>Check out date: {order.CheckOutDate}</p>
-<h4>Total price: {order.TotalPrice} $</4>
-            <p>Thank you for booking with us at <a href='https://trek-booking.vercel.app'>Trek Booking</a>. We are thrilled to have you as our guest.</p>
-            <p>For more details, please visit our website.</p>
-            <p>If you have any questions, do not hesitate to contact us.</p>
-            <p>We wish you a pleasant and memorable journey!</p>
-            <p>Best regards,</p>
-            <p>The Trek Booking Team</p>
-            <a href='https://trek-booking.vercel.app' class='button'>Visit Trek Booking</a>
-        </div>
-        <div class='footer'>
-            <p>&copy; 2024 Trek Booking. All rights reserved.</p>
-            <p><a href='https://trek-booking.vercel.app'>Visit our website</a></p>
-        </div>
-    </div>
-</body>
-</html>
-";
- 
-                    // mail
-                    
-                    // Send the email
-                    await _emailSender.SendEmailAsync(order.Email, "TrekBooking - Thank You for Your Booking!", emailContent);
+                    //                        string emailContent = $@"
+                    //<!DOCTYPE html>
+                    //<html>
+                    //<head>
+                    //    <meta charset='UTF-8'>
+                    //    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                    //    <style>
+                    //        body {{ font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }}
+                    //        .container {{ width: 80%; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }}
+                    //        .header {{ background: #4CAF50; color: white; padding: 10px 0; text-align: center; }}
+                    //        .content {{ margin: 20px 0; }}
+                    //        .content p {{ line-height: 1.6; }}
+                    //        .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #777; }}
+                    //        .footer a {{ color: #4CAF50; text-decoration: none; }}
+                    //        .button {{ display: inline-block; padding: 10px 20px; font-size: 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 5px; }}
+                    //    </style>
+                    //</head>
+                    //<body>
+                    //    <div class='container'>
+                    //        <div class='header'>
+                    //            <h1>Thank You for Your Booking!</h1>
+                    //        </div>
+                    //        <div class='content'>
+                    //            <p>Dear {order.FullName},</p>
+                    //<p>You have successfully booked a room: {orderDetail.RoomName} at the hotel:  {orderDetail.HotelName}.</p>
+                    //<p><a href='https://trek-booking.vercel.app/trekbooking/list_hotel/{orderDetail.HotelId}'>View this hotel</a> .</p>
+                    //<p>Check in date: {order.CheckInDate}</p>
+                    //<p>Check out date: {order.CheckOutDate}</p>
+                    //<h4>Total price: {order.TotalPrice} $</4>
+                    //            <p>Thank you for booking with us at <a href='https://trek-booking.vercel.app'>Trek Booking</a>. We are thrilled to have you as our guest.</p>
+                    //            <p>For more details, please visit our website.</p>
+                    //            <p>If you have any questions, do not hesitate to contact us.</p>
+                    //            <p>We wish you a pleasant and memorable journey!</p>
+                    //            <p>Best regards,</p>
+                    //            <p>The Trek Booking Team</p>
+                    //            <a href='https://trek-booking.vercel.app' class='button'>Visit Trek Booking</a>
+                    //        </div>
+                    //        <div class='footer'>
+                    //            <p>&copy; 2024 Trek Booking. All rights reserved.</p>
+                    //            <p><a href='https://trek-booking.vercel.app'>Visit our website</a></p>
+                    //        </div>
+                    //    </div>
+                    //</body>
+                    //</html>
+                    //";
+
+                    //                    // mail
+
+                    //                    // Send the email
+                    //                    await _emailSender.SendEmailAsync(order.Email, "TrekBooking - Thank You for Your Booking!", emailContent);
 
                     // Update order information
+                    string emailContent = "Cảm ơn anh/chị đã booking tại web https://trek-booking.vercel.app  ";
+                    await _emailSender.SendEmailAsync(order.Email, "TrekBooking ", emailContent);
+
+
                     order.PaymentIntentId = session.PaymentIntentId;
                     order.Process = "Paid"; // Update status to successful
                     await _orderRepository.Update(order);
-
-       /*             await _emailSender.SendEmailAsync(order.Email, "TrekBooking ", emailContent);
-
-                    order.PaymentIntentId = session.PaymentIntentId;
-                    order.Process = "Paid"; // Cập nhật trạng thái thành công
-                    await _orderRepository.Update(order);*/
-                    // Tải chi tiết đơn hàng
                     var orderDetails = await _context.OrderHotelDetails
                         .Where(od => od.OrderHotelHeaderlId == order.Id)
                         .ToListAsync();
