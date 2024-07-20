@@ -154,12 +154,12 @@ namespace YourNamespace.Controllers
     <style>
         body {{ font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }}
         .container {{ width: 80%; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }}
-        .header {{ background: #4CAF50; color: white; padding: 10px 0; text-align: center; }}
+        .header {{ background: #305a61; color: white; padding: 10px 0; text-align: center; }}
         .content {{ margin: 20px 0; }}
         .content p {{ line-height: 1.6; }}
         .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #777; }}
-        .footer a {{ color: #4CAF50; text-decoration: none; }}
-        .button {{ display: inline-block; padding: 10px 20px; font-size: 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 5px; }}
+        .footer a {{ color: #305a61; text-decoration: none; }}
+        .button {{ display: inline-block; padding: 10px 20px; font-size: 16px; background: #305a61; color: white; text-decoration: none; border-radius: 5px; }}
     </style>
 </head>
 <body>
@@ -169,7 +169,6 @@ namespace YourNamespace.Controllers
         </div>
         <div class='content'>
             <p>Dear {order.FullName},</p>
-<p>You have successfully booked a room: {orderDetail.RoomName} at the hotel:  {orderDetail.HotelName}.</p>
 <p><a href='https://trek-booking.vercel.app/trekbooking/list_hotel/{orderDetail.HotelId}'>View this hotel</a> .</p>
 <p>Check in date: {order.CheckInDate}</p>
 <p>Check out date: {order.CheckOutDate}</p>
@@ -378,12 +377,12 @@ namespace YourNamespace.Controllers
     <style>
         body {{ font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }}
         .container {{ width: 80%; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }}
-        .header {{ background: #4CAF50; color: white; padding: 10px 0; text-align: center; }}
+        .header {{ background: #305a61; color: white; padding: 10px 0; text-align: center; }}
         .content {{ margin: 20px 0; }}
         .content p {{ line-height: 1.6; }}
         .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #777; }}
-        .footer a {{ color: #4CAF50; text-decoration: none; }}
-        .button {{ display: inline-block; padding: 10px 20px; font-size: 16px; background: #4CAF50; color: white; text-decoration: none; border-radius: 5px; }}
+        .footer a {{ color: #305a61; text-decoration: none; }}
+        .button {{ display: inline-block; padding: 10px 20px; font-size: 16px; background: #305a61; color: white; text-decoration: none; border-radius: 5px; }}
     </style>
 </head>
 <body>
