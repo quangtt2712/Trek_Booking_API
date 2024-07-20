@@ -143,22 +143,16 @@ namespace YourNamespace.Controllers
                 if (order != null)
                 {
                  // mail
-                    string emailContent = "Cảm ơn anh/chị đã booking tại web https://trek-booking.vercel.app  ";
+                    string emailContent = "Cảm ơn anh/chị đã booking tại web https://trek-booking.vercel.app";
                     await _emailSender.SendEmailAsync(order.Email, "TrekBooking ", emailContent);
 
                     order.PaymentIntentId = session.PaymentIntentId;
                     order.Process = "Paid"; // Cập nhật trạng thái thành công
                     await _orderRepository.Update(order);
-
-                    
-               
-                
-
                     // Tải chi tiết đơn hàng
                     var orderDetails = await _context.OrderHotelDetails
                         .Where(od => od.OrderHotelHeaderlId == order.Id)
                         .ToListAsync();
-
                     // Xóa cart
                     foreach (var detail in orderDetails)
                     {
@@ -173,7 +167,6 @@ namespace YourNamespace.Controllers
                     return NotFound("Order not found");
                 }
             }
-
             return Ok();
         }
 
