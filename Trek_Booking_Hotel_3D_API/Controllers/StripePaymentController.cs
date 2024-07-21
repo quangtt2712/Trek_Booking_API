@@ -225,7 +225,7 @@ namespace YourNamespace.Controllers
                         var voucherUsageHistory = new VoucherUsageHistory
                         {
                             UserVoucherId = 0,
-                            VoucherId = order.UserId, // Giả sử bạn có thông tin này trong order
+                            VoucherId = order.VoucherId, // Giả sử bạn có thông tin này trong order
                             UserId = order.UserId,
                             OrderHotelHeaderId = order.Id // Sử dụng OrderHotelHeaderId mới
                         };
