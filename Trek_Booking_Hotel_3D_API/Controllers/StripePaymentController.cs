@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Trek_Booking_DataAccess;
 using Trek_Booking_DataAccess.Data;
 using Trek_Booking_Hotel_3D_API.Helper;
+using Trek_Booking_Repository.Repositories;
 using Trek_Booking_Repository.Repositories.IRepositories;
 
 namespace YourNamespace.Controllers
@@ -27,9 +28,11 @@ namespace YourNamespace.Controllers
         private readonly IOrderHotelDetailRepository _orderHotelDetailRepository;
         private readonly StripeSettings _stripeSettings;
         private readonly IEmailSender _emailSender;
+        private readonly IVoucherUsageHistoryRepository _repository;
 
 
-        public StripePaymentController(IEmailSender emailSender, IOptions<StripeSettings> stripeSettings, ILogger<StripePaymentController> logger, IConfiguration configuration,ApplicationDBContext context,IOrderRepository orderRepository, IOrderHotelDetailRepository orderHotelDetailRepository)
+
+        public StripePaymentController(IVoucherUsageHistoryRepository repository, IEmailSender emailSender, IOptions<StripeSettings> stripeSettings, ILogger<StripePaymentController> logger, IConfiguration configuration,ApplicationDBContext context,IOrderRepository orderRepository, IOrderHotelDetailRepository orderHotelDetailRepository)
         {
             _logger = logger;
             _configuration = configuration;
@@ -37,6 +40,7 @@ namespace YourNamespace.Controllers
             _orderRepository = orderRepository;
             _stripeSettings = stripeSettings.Value;
             _emailSender = emailSender;
+            _repository = repository;
 
         }
 
@@ -203,6 +207,19 @@ namespace YourNamespace.Controllers
                     order.PaymentIntentId = session.PaymentIntentId;
                     order.Process = "Paid"; // Update status to successful
                     await _orderRepository.Update(order);
+                    if (order.Id != 0)
+                    {
+                        var voucherUsageHistory = new VoucherUsageHistory
+                        {
+                            UserVoucherId = 0,
+                            VoucherId = order.UserId, // Giả sử bạn có thông tin này trong order
+                            UserId = order.UserId,
+                            Process = "Paid",
+                            OrderHotelHeaderId = order.Id // Sử dụng OrderHotelHeaderId mới
+                        };
+
+                        await _repository.createVoucherUsageHistory(voucherUsageHistory);
+                    }
                     var orderDetails = await _context.OrderHotelDetails
                         .Where(od => od.OrderHotelHeaderlId == order.Id)
                         .ToListAsync();

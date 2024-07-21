@@ -14,14 +14,12 @@ namespace Trek_Booking_DataAccess
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int PaymentInforId { get; set; }
-        [Required(ErrorMessage = "PaymentMethod is not null")]
+     
         public string? PaymentMethod { get; set; }
         //[RegularExpression("^([A-Za-z]){5}([0-9]){4}([A-Za-z]){1}$", ErrorMessage = "Invalid Cart Number")]
-        public float? CartNumber { get; set; }
-        [Required(ErrorMessage = "TotalPrice is not null")]
-
+        public int? CartNumber { get; set; }
         public decimal? TotalPrice { get; set; }
-        [Required(ErrorMessage = "TotalPrice is not null")]
+
         public decimal? PaymentFee { get; set; }
         [DataType(DataType.DateTime)]
         public DateTime? PaidDate { get; set; }

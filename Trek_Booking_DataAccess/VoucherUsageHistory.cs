@@ -18,8 +18,6 @@ namespace Trek_Booking_DataAccess
         [ForeignKey("Voucher")]
         public int? VoucherId { get; set; }
         public Voucher? Voucher { get; set; }
-
-
         [ForeignKey("User")]
         public int? UserId { get; set; }
         public User? User { get; set; }
