@@ -29,6 +29,8 @@ namespace Trek_Booking_DataAccess
         public string? Phone { get; set; }
         public string? Requirement { get; set; }
         public string? VoucherCode { get; set; }
+        public int? VoucherId { get; set; }
+
         public string? Process { get; set; }
         public bool Completed { get; set; }
     }
