@@ -29,10 +29,10 @@ namespace YourNamespace.Controllers
         private readonly StripeSettings _stripeSettings;
         private readonly IEmailSender _emailSender;
         private readonly IVoucherUsageHistoryRepository _repository;
+        private readonly IPaymentInforRepository _repositoryin;
 
 
-
-        public StripePaymentController(IVoucherUsageHistoryRepository repository, IEmailSender emailSender, IOptions<StripeSettings> stripeSettings, ILogger<StripePaymentController> logger, IConfiguration configuration,ApplicationDBContext context,IOrderRepository orderRepository, IOrderHotelDetailRepository orderHotelDetailRepository)
+        public StripePaymentController(IPaymentInforRepository repositoryin, IVoucherUsageHistoryRepository repository, IEmailSender emailSender, IOptions<StripeSettings> stripeSettings, ILogger<StripePaymentController> logger, IConfiguration configuration,ApplicationDBContext context,IOrderRepository orderRepository, IOrderHotelDetailRepository orderHotelDetailRepository)
         {
             _logger = logger;
             _configuration = configuration;
@@ -41,7 +41,7 @@ namespace YourNamespace.Controllers
             _stripeSettings = stripeSettings.Value;
             _emailSender = emailSender;
             _repository = repository;
-
+            _repositoryin = repositoryin;
         }
 
         [HttpPost("/StripePayment/Create")]
@@ -147,7 +147,20 @@ namespace YourNamespace.Controllers
                 var order = await _orderRepository.GetOrderBySessionId(session.Id);
                 if (order != null)
                 {
-                  
+                    var paymentInfor = new PaymentInformation
+                    {
+                        PaymentInforId = 0, // Tự động tăng
+                        PaymentMethod = "Visa",
+                        CartNumber = 42424242,
+                        TotalPrice = order.TotalPrice,
+                        PaymentFee = 0,
+                        PaidDate = DateTime.UtcNow,
+                        UserId = order.UserId,
+                        Process = "Paid"
+                    };
+
+                    await _repositoryin.createPaymentInfor(paymentInfor);
+
 
                     string emailContent = $@"
                     <!DOCTYPE html>
