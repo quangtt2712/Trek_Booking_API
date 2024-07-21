@@ -14,15 +14,12 @@ namespace Trek_Booking_DataAccess
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int UserVoucherId { get; set; }
 
-
         [ForeignKey("Voucher")]
         public int? VoucherId { get; set; }
         public Voucher? Voucher { get; set; }
         [ForeignKey("User")]
         public int? UserId { get; set; }
         public User? User { get; set; }
-        public string? Process { get; set; }
-
         [ForeignKey("OrderHotelHeader")]
         public int? OrderHotelHeaderId { get; set; }
         public OrderHotelHeader? OrderHotelHeader { get; set; }

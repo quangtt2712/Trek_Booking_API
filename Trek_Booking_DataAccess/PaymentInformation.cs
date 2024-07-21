@@ -16,14 +16,13 @@ namespace Trek_Booking_DataAccess
         public int PaymentInforId { get; set; }
      
         public string? PaymentMethod { get; set; }
-        //[RegularExpression("^([A-Za-z]){5}([0-9]){4}([A-Za-z]){1}$", ErrorMessage = "Invalid Cart Number")]
-        public int? CartNumber { get; set; }
+  
+        public string? CartNumber { get; set; }
         public decimal? TotalPrice { get; set; }
 
         public decimal? PaymentFee { get; set; }
         [DataType(DataType.DateTime)]
         public DateTime? PaidDate { get; set; }
-        public string? Process { get; set; }
         [ForeignKey("User")]
         public int? UserId { get; set; }
         public User? User { get; set; }

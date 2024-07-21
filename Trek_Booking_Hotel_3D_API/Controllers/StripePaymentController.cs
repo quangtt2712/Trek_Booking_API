@@ -151,12 +151,12 @@ namespace YourNamespace.Controllers
                     {
                         PaymentInforId = 0, // Tự động tăng
                         PaymentMethod = "Visa",
-                        CartNumber = 42424242,
+                        CartNumber = "4242 4242 4242 4242",
                         TotalPrice = order.TotalPrice,
                         PaymentFee = 0,
                         PaidDate = DateTime.UtcNow,
                         UserId = order.UserId,
-                        Process = "Paid"
+                        
                     };
 
                     await _repositoryin.createPaymentInfor(paymentInfor);
@@ -227,7 +227,6 @@ namespace YourNamespace.Controllers
                             UserVoucherId = 0,
                             VoucherId = order.UserId, // Giả sử bạn có thông tin này trong order
                             UserId = order.UserId,
-                            Process = "Paid",
                             OrderHotelHeaderId = order.Id // Sử dụng OrderHotelHeaderId mới
                         };
 
