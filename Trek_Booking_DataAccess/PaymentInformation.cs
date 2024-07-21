@@ -17,17 +17,17 @@ namespace Trek_Booking_DataAccess
         [Required(ErrorMessage = "PaymentMethod is not null")]
         public string? PaymentMethod { get; set; }
         //[RegularExpression("^([A-Za-z]){5}([0-9]){4}([A-Za-z]){1}$", ErrorMessage = "Invalid Cart Number")]
-        public float CartNumber { get; set; }
+        public float? CartNumber { get; set; }
         [Required(ErrorMessage = "TotalPrice is not null")]
 
-        public decimal TotalPrice { get; set; }
+        public decimal? TotalPrice { get; set; }
         [Required(ErrorMessage = "TotalPrice is not null")]
-        public decimal PaymentFee { get; set; }
+        public decimal? PaymentFee { get; set; }
         [DataType(DataType.DateTime)]
         public DateTime? PaidDate { get; set; }
-
+        public string? Process { get; set; }
         [ForeignKey("User")]
-        public int UserId { get; set; }
+        public int? UserId { get; set; }
         public User? User { get; set; }
     }
 }

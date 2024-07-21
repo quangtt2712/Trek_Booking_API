@@ -166,12 +166,7 @@ namespace Trek_Booking_DataAccess.Data
                 .HasForeignKey(b => b.VoucherId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<VoucherUsageHistory>()
-                .HasOne(b => b.Booking)
-                .WithMany(c => c.voucherUsageHistory)
-                .HasForeignKey(b => b.BookingId)
-                .OnDelete(DeleteBehavior.Restrict);
-
+    
             modelBuilder.Entity<VoucherUsageHistory>()
                 .HasOne(b => b.User)
                 .WithMany(c => c.voucherUsageHistories)
