@@ -24,6 +24,7 @@ namespace Trek_Booking_Repository.Repositories.IRepositories
         public Task<IEnumerable<RevenueHotelDateRange>> getRevenueHotelBySupplierIdAndDateRange(int supplierId, DateTime startDate, DateTime endDate);
         public Task<IEnumerable<RevenueHotelMonthToYear>> getRevenueHotelMonthToYearBySupplierId(int supplierId, int year);
        Task<IActionResult> ToggleStatus(ToggleOrderHotelHeaderRequest request);
+        public Task<OrderHotelHeader> updateOrderHotelHeader(OrderHotelHeader orderHotelHeader);
 
     }
 }

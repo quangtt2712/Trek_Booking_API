@@ -18,7 +18,22 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             _repository = repository;
             _authMiddleWare = authMiddleWare;
         }
-        [HttpPut("/toggleOrderTourHeaderStatus")]
+        [HttpPut("/updateOrderTourHeader")]
+        public async Task<IActionResult> updateOrderTourHeader(OrderTourHeader orderTourHeader)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var check = await _repository.getOrderTourHeaderByUserId(orderTourHeader.Id);
+            if (check == null)
+            {
+                return BadRequest("Not found Order Tour Header");
+            }
+            var update = await _repository.updateOrderTourHeader(orderTourHeader);
+            return Ok(new { message = "Update successful", data = update });
+        }
+         [HttpPut("/toggleOrderTourHeaderStatus")]
         public async Task<IActionResult> toggleOrderTourHeaderStatus([FromBody] ToggleOrderTourHeaderRequest request)
         {
             var result = await _repository.ToggleStatus(request);

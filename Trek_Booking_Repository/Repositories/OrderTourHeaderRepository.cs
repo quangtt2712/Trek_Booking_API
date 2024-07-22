@@ -19,7 +19,18 @@ namespace Trek_Booking_Repository.Repositories
         {
             _dbContext = dBContext;
         }
-
+        public async Task<OrderTourHeader> updateOrderTourHeader(OrderTourHeader orderTourHeader)
+        {
+            var findOrderTourHeader = await _dbContext.OrderTourHeaders.FirstOrDefaultAsync(b => b.Id == orderTourHeader.Id);
+            if (findOrderTourHeader != null)
+            {
+                findOrderTourHeader.Process = orderTourHeader.Process;
+                _dbContext.OrderTourHeaders.Update(findOrderTourHeader);
+                await _dbContext.SaveChangesAsync();
+                return findOrderTourHeader;
+            }
+            return null;
+        }
         public async Task<IActionResult> ToggleStatus(ToggleOrderTourHeaderRequest request)
         {
             var orderTourHeader = await _dbContext.OrderTourHeaders.FindAsync(request.Id);

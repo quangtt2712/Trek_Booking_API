@@ -19,6 +19,18 @@ namespace Trek_Booking_Repository.Repositories
         {
             _dbContext = dBContext;
         }
+        public async Task<OrderHotelHeader> updateOrderHotelHeader(OrderHotelHeader orderHotelHeader)
+        {
+            var findOrderHotelHeader = await _dbContext.OrderHotelHeaders.FirstOrDefaultAsync(b => b.Id == orderHotelHeader.Id);
+            if (findOrderHotelHeader != null)
+            {
+                findOrderHotelHeader.Process = orderHotelHeader.Process;
+                _dbContext.OrderHotelHeaders.Update(findOrderHotelHeader);
+                await _dbContext.SaveChangesAsync();
+                return findOrderHotelHeader;
+            }
+            return null;
+        }
         public async Task<IEnumerable<OrderHotelHeader>> getOrderHotelHeaderByUserId(int userId)
         {
             var check = await _dbContext.OrderHotelHeaders.Where(u => u.UserId == userId && (u.Process == "Paid" || u.Process == "Success")).ToListAsync();
