@@ -55,7 +55,7 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             {
                 return BadRequest();
             }
-            else if (await _repository.checkExitsName(room.RoomName))
+            else if (await _repository.checkExitsName(room.RoomName,room.HotelId))
             {
                 return BadRequest("RoomName already exits");
             }

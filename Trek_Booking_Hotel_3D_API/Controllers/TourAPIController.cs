@@ -77,7 +77,7 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             {
                 return BadRequest();
             }
-            else if (await _repository.checkExitsName(tour.TourName))
+            else if (await _repository.checkExitsName(tour.TourName,tour.SupplierId))
             {
                 return BadRequest("TourName already exits");
             }

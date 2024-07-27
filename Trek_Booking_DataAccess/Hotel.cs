@@ -45,6 +45,7 @@ namespace Trek_Booking_DataAccess
         public string? HotelInformation { get; set; }
 
         public bool IsVerify { get; set; }
+        public bool? Lock { get; set; }
         public int HotelView { get; set; }
 
         [ForeignKey("Supplier")]

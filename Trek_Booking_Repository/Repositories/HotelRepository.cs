@@ -27,15 +27,11 @@ namespace Trek_Booking_Repository.Repositories
             return check;
         }
 
-        public async Task<bool> checkExitsName(string name)
-        {
-            var check = await _context.hotels.AnyAsync(n => n.HotelName == name);
-            return check;
-        }
-
+    
         public async Task<Hotel> createHotel(Hotel hotel)
         {
             hotel.IsVerify = true;
+            hotel.Lock = true;
             _context.hotels.Add(hotel);
             await _context.SaveChangesAsync();
             return hotel;
@@ -46,7 +42,7 @@ namespace Trek_Booking_Repository.Repositories
             var deleteHotel = await _context.hotels.FirstOrDefaultAsync(t => t.HotelId == hotelId);
             if (deleteHotel != null)
             {
-                deleteHotel.IsVerify = false;
+                deleteHotel.Lock = true;
                 _context.hotels.Update(deleteHotel);
                 return await _context.SaveChangesAsync();
             }
@@ -61,7 +57,7 @@ namespace Trek_Booking_Repository.Repositories
 
         public async Task<IEnumerable<Hotel>> getHotels()
         {
-            var hotels = await _context.hotels.Include(s => s.Supplier).ToListAsync();
+            var hotels = await _context.hotels.Include(s => s.Supplier).Where(h=> h.Lock == false).ToListAsync();
             return hotels;
         }
         public async Task<IEnumerable<Hotel>> getHotelsBySupplierId(int supplierId)
@@ -75,7 +71,7 @@ namespace Trek_Booking_Repository.Repositories
             var deleteHotel = await _context.hotels.FirstOrDefaultAsync(t => t.HotelId == hotelId);
             if (deleteHotel != null)
             {
-                deleteHotel.IsVerify = true;
+                deleteHotel.Lock = false;
                 _context.hotels.Update(deleteHotel);
                 return await _context.SaveChangesAsync();
             }
@@ -202,11 +198,12 @@ namespace Trek_Booking_Repository.Repositories
             return hotels;
         }
 
+        public async Task<bool> checkExitsName(string name, int supplierId)
+        {
+            var check = await _context.hotels.Where(x => x.SupplierId == supplierId && x.HotelName == name).AnyAsync();
+            return check;
+        }
        
-
-
-
-
 
     }
 }

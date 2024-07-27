@@ -16,7 +16,7 @@ namespace Trek_Booking_Repository.Repositories.IRepositories
         public Task<Room> getRoombyId(int roomId);
         public Task<IEnumerable<Room>> getRooms();
         public Task<IEnumerable<Room>> getRoombyHotelId(int hotelId);
-        public Task<bool> checkExitsName(string name);
+        public Task<bool> checkExitsName(string name, int hotelId);
         public Task<int> recoverRoomDeleted(int roomId);
         public Task<IEnumerable<RoomAvailabilityDto>> SearchRoomSchedule(int hotelId, DateTime checkInDate, DateTime checkOutDate);
     }
