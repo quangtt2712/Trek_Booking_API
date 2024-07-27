@@ -68,5 +68,25 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
                 return BadRequest(403);
             }
         }
+
+        [HttpGet("/getVoucherUsageHistoryByUserId/{userId}")]
+        public async Task<IActionResult> getVoucherUsageHistoryByUserId(int userId)
+        {
+            //var userId = _authMiddleWare.GetUserIdFromToken(HttpContext);
+            if (userId != null && userId != 0)
+            {
+                var check = await _repository.getVoucherUsageHistoryByUserId(userId);
+                if (check == null)
+                {
+                    return NotFound("Not Found");
+                }
+                return Ok(check);
+            }
+            else
+            {
+                return BadRequest(403);
+            }
+        }
+
     }
 }

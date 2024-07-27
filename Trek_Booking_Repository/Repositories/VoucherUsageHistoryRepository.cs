@@ -39,8 +39,13 @@ namespace Trek_Booking_Repository.Repositories
 
         public async Task<IEnumerable<VoucherUsageHistory>> getVoucherUsageHistoryByUserId(int userId)
         {
-            var check = await _context.voucherUsageHistories.Where(t => t.UserId == userId).ToListAsync();
-            return check;
+            var result = await _context.voucherUsageHistories
+                                       .Include(t => t.OrderHotelHeader)
+                                       .Include(v => v.Voucher)
+                                       .Where(t => t.UserId == userId && t.OrderHotelHeader != null)
+                                       .ToListAsync();
+            return result;
         }
+
     }
 }
