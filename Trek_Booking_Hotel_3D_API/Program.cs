@@ -129,6 +129,7 @@ builder.Services.AddScoped<IOrderTourHeaderRepository, OrderTourHeaderRepository
 builder.Services.AddScoped<IOrderTourDetailRepository, OrderTourDetailRepository>();
 builder.Services.AddScoped<IOrderHotelDetailRepository, OrderHotelDetailRepository>();
 builder.Services.AddScoped<IOrderHotelHeaderRepository, OrderHotelHeaderRepository>();
+builder.Services.AddScoped<IDashBoardAdminRepository, DashBoardAdminRepository>();
 builder.Services.AddScoped<IJwtUtils, JwtUtils>();
 builder.Services.AddScoped<AuthMiddleWare>();
 
