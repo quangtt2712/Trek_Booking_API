@@ -231,6 +231,13 @@ namespace YourNamespace.Controllers
                         };
 
                         await _repository.createVoucherUsageHistory(voucherUsageHistory);
+                        var voucher = await _context.vouchers.FindAsync(order.VoucherId);
+                        if (voucher != null)
+                        {
+                            voucher.VoucherQuantity -= 1; // Giảm số lượng voucher
+                            _context.vouchers.Update(voucher);
+                            await _context.SaveChangesAsync();
+                        }
                     }
                     var orderDetails = await _context.OrderHotelDetails
                         .Where(od => od.OrderHotelHeaderlId == order.Id)
