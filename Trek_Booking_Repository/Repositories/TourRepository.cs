@@ -52,7 +52,7 @@ namespace Trek_Booking_Repository.Repositories
 
         public async Task<IEnumerable<Tour>> getTours()
         {
-            var tours = await _context.tours.ToListAsync();
+            var tours = await _context.tours.Where(t => t.Status == true).ToListAsync();
             return tours;
         }
 
