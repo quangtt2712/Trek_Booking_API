@@ -52,7 +52,7 @@ namespace Trek_Booking_Repository.Repositories
 
         public async Task<IEnumerable<Tour>> getTours()
         {
-            var tours = await _context.tours.Where(t => t.Status == true).ToListAsync();
+            var tours = await _context.tours.Where(t => t.Status == true && t.Lock == false).ToListAsync();
             return tours;
         }
 
@@ -113,6 +113,30 @@ namespace Trek_Booking_Repository.Repositories
                 .ToListAsync();
 
             return tours;
+        }
+
+        public async Task<IActionResult> LockTour(ToggleTourRequest request)
+        {
+            var tour = await _context.tours.FindAsync(request.TourId);
+            if (tour == null)
+            {
+                return new NotFoundResult();
+            }
+
+            tour.Lock = !tour.Lock;
+            _context.Entry(tour).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+
+                throw;
+
+            }
+            return new NoContentResult();
         }
     }
 }

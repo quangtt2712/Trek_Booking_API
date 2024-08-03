@@ -18,6 +18,7 @@ namespace Trek_Booking_Repository.Repositories.IRepositories
         public Task<bool> checkExitsName(string name, int supplierId);
         public Task<IEnumerable<Tour>> getTourBySupplierId(int supplierId);
         Task<IActionResult> ToggleStatus(ToggleTourRequest request);
+        Task<IActionResult> LockTour(ToggleTourRequest request);
         Task<IEnumerable<Tour>> searchTourByAddress(string address);
     }
 }

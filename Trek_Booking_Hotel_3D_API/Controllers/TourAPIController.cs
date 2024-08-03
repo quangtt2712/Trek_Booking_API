@@ -30,6 +30,17 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             }
             return NoContent();
         }
+
+        [HttpPut("/LockTour")]
+        public async Task<IActionResult> LockTour([FromBody] ToggleTourRequest request)
+        {
+            var result = await _repository.LockTour(request);
+            if (result is NotFoundResult)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
         [HttpGet("/getTours")]
         public async Task<IActionResult> getTours()
         {

@@ -41,6 +41,7 @@ namespace Trek_Booking_DataAccess
         public int? TourDay { get; set; }
         public bool Status { get; set; }
         public int TourView { get; set; }
+        public bool? Lock { get; set; }
 
         [ForeignKey("Supplier")]
         public int SupplierId { get; set; }
