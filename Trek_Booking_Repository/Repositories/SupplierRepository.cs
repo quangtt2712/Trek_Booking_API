@@ -85,6 +85,7 @@ namespace Trek_Booking_Repository.Repositories
                 Phone = registerRequest.Phone,
                 Status = true,
                 IsVerify = true,
+                Commission = 0.5,
                 RoleId = registerRequest.RoleId,
                 BankName = registerRequest.BankName,
                 BankAccount = registerRequest.BankAccount,
