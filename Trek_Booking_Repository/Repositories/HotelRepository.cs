@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -208,6 +209,30 @@ namespace Trek_Booking_Repository.Repositories
         {
             var hotels = await _context.hotels.Include(s => s.Supplier).ToListAsync();
             return hotels;
+        }
+
+        public async Task<IActionResult> ToggleHotel(ToggleHotelRequest request)
+        {
+            var hotel = await _context.hotels.FindAsync(request.HotelId);
+            if (hotel == null)
+            {
+                return new NotFoundResult();
+            }
+
+            hotel.IsVerify = !hotel.IsVerify;
+            _context.Entry(hotel).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+
+                throw;
+
+            }
+            return new NoContentResult();
         }
     }
 }

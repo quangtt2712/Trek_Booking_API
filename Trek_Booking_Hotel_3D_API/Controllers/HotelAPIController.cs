@@ -17,6 +17,18 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             _repository = repository;
             _authMiddleWare = authMiddleWare;
         }
+
+        [HttpPut("/toggleHotelStatus")]
+        public async Task<IActionResult> ToggleStatus([FromBody] ToggleHotelRequest request)
+        {
+            var result = await _repository.ToggleHotel(request);
+            if (result is NotFoundResult)
+            {
+                return NotFound();
+            }
+            return NoContent();
+        }
+
         [HttpGet("/getHotels")]
         public async Task<IActionResult> getHotels()
         {
