@@ -203,7 +203,11 @@ namespace Trek_Booking_Repository.Repositories
             var check = await _context.hotels.Where(x => x.SupplierId == supplierId && x.HotelName == name).AnyAsync();
             return check;
         }
-       
 
+        public async Task<IEnumerable<Hotel>> getHotelsByAdmin()
+        {
+            var hotels = await _context.hotels.Include(s => s.Supplier).ToListAsync();
+            return hotels;
+        }
     }
 }

@@ -138,5 +138,11 @@ namespace Trek_Booking_Repository.Repositories
             }
             return new NoContentResult();
         }
+
+        public async Task<IEnumerable<Tour>> getToursByAdmin()
+        {
+            var tours = await _context.tours.ToListAsync();
+            return tours;
+        }
     }
 }
