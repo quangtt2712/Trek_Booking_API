@@ -56,6 +56,7 @@ namespace Trek_Booking_Repository.Repositories
             var userStatus = await _context.users.FirstOrDefaultAsync(u => u.Status == user.Status);
             return userStatus;
         }
+      
 
         public async Task<User> getUserByEmail(string email)
         {
@@ -180,5 +181,14 @@ namespace Trek_Booking_Repository.Repositories
             }
             return new NoContentResult();
         }
+
+
+        public async Task<bool> checkIsAdmin(User user)
+        {
+            var isAdmin = await _context.users.AnyAsync(u => u.UserId == user.UserId && u.RoleId == 1);
+            return isAdmin;
+        }
+
+       
     }
 }

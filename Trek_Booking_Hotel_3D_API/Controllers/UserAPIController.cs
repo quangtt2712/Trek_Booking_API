@@ -139,6 +139,48 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             await _repository.recoverUserDeleted(userId);
             return StatusCode(200, "Recover Successfully!");
         }
+        [HttpPost("/loginAdmin")]
+        public async Task<IActionResult> LoginAdmin([FromBody] User user)
+        {
+            if (user == null || !ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var result = await _authenticationUserRepository.checkPasswordClient(user);
+            if (result != null)
+            {
+                var checkBanned = await _repository.checkBannedUser(result);
+                if (checkBanned.Status == false)
+                {
+                    return BadRequest("The account of user is banned!");
+                }
+
+                var isAdmin = await _repository.checkIsAdmin(result);
+                if (!isAdmin)
+                {
+                    return BadRequest("The account is not admin!");
+                }
+
+                var role = await _roleRepository.getRoleById(result.RoleId);
+                return Ok(new UserResponse()
+                {
+                    IsAuthSuccessful = true,
+                    UserName = result.UserName,
+                    RoleId = result.RoleId,
+                    RoleName = role?.RoleName
+                });
+            }
+            else
+            {
+                return Unauthorized(new UserResponse
+                {
+                    IsAuthSuccessful = false,
+                    ErrorMessage = "Email or password is not correct!"
+                });
+            }
+        }
+
         [HttpPost("/loginClient")]
         public async Task<IActionResult> loginClient([FromBody] User user)
         {
