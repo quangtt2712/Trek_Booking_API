@@ -47,8 +47,9 @@ namespace Trek_Booking_Repository.Repositories
                 .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true).CountAsync();
             return count;
         }
-        public async Task<double> getPercentChangeFromLastWeek(int supplierId, DateTime date)
+        public async Task<double> getPercentChangeFromLastWeek(int supplierId)
         {
+            var date = DateTime.Now;
             // Get the current week's count
             var startOfCurrentWeek = date.AddDays(-(int)date.DayOfWeek);
             var endOfCurrentWeek = startOfCurrentWeek.AddDays(7);
@@ -70,21 +71,22 @@ namespace Trek_Booking_Repository.Repositories
             return percentageChange;
         }
 
-        public async Task<decimal> getPercentChangeRevenueFromLastWeek(int supplierId, DateTime date)
+        public async Task<decimal> getPercentChangeRevenueFromLastWeek(int supplierId)
         {
+            var date = DateTime.Now;
             // Get the current week's revenue
             var startOfCurrentWeek = date.AddDays(-(int)date.DayOfWeek);
             var endOfCurrentWeek = startOfCurrentWeek.AddDays(7);
             var currentWeekRevenue = await _dbContext.OrderHotelHeaders
                 .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckInDate >= startOfCurrentWeek && s.CheckInDate < endOfCurrentWeek)
-                .SumAsync(t => t.TotalPrice ?? 0);
+                .SumAsync(t => (t.TotalPrice ?? 0) * 0.995m);
 
             // Get the previous week's revenue
             var startOfPreviousWeek = startOfCurrentWeek.AddDays(-7);
             var endOfPreviousWeek = startOfCurrentWeek;
             var previousWeekRevenue = await _dbContext.OrderHotelHeaders
                 .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckInDate >= startOfPreviousWeek && s.CheckInDate < endOfPreviousWeek)
-                .SumAsync(t => t.TotalPrice ?? 0);
+                .SumAsync(t => (t.TotalPrice ?? 0) * 0.995m);
 
             // Calculate the percentage change
             if (previousWeekRevenue == 0) return 0;
@@ -113,40 +115,61 @@ namespace Trek_Booking_Repository.Repositories
         {
             var totalRevenue = await _dbContext.OrderHotelHeaders
                 .Where(u => u.SupplierId == supplierId && u.Process == "Success" && u.Completed == true)
-       .SumAsync(t => t.TotalPrice ?? 0);
+                .SumAsync(t => (t.TotalPrice ?? 0) * 0.995m);
             return totalRevenue;
         }
-
-        public async Task<IEnumerable<WeeklyRevenue>> getCurrentWeekRevenueHotelBySupplierId(int supplierId)
+        public async Task<IEnumerable<WeeklyRevenue>> getCurrentWeekRevenueHotelBySupplierId(int supplierid)
         {
             var today = DateTime.Today;
-            var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
-            var endOfWeek = startOfWeek.AddDays(7);
+            var startofweek = today.AddDays(-(int)today.DayOfWeek);
+            var endofweek = startofweek.AddDays(7);
 
-            var weeklyRevenue = await _dbContext.OrderHotelHeaders
-                .Where(o => o.SupplierId == supplierId
-                       && o.Process == "Success"
-                       && o.Completed == true
-                       && o.CheckInDate.HasValue
-                       && o.CheckInDate.Value >= startOfWeek
-                       && o.CheckInDate.Value < endOfWeek)
-                .GroupBy(o => o.CheckInDate.Value.Date)
+            var supplier = await _dbContext.suppliers
+                .Where(s => s.SupplierId == supplierid)
+                .Select(s => new { s.Commission })
+                .FirstOrDefaultAsync();
+
+            if (supplier == null)
+            {
+                throw new Exception("Supplier not found");
+            }
+
+            var weeklyrevenue = await _dbContext.OrderHotelHeaders
+                .Where(order => order.SupplierId == supplierid
+                       && order.Process == "success"
+                       && order.Completed == true
+                       && order.CheckInDate.HasValue
+                       && order.CheckInDate.Value >= startofweek
+                       && order.CheckInDate.Value < endofweek)
+                .Select(order => new
+                {
+                    CheckInDate = order.CheckInDate.Value.Date,
+                    NetRevenue = (order.TotalPrice ?? 0) * 0.995m
+                })
+                .ToListAsync();
+
+            var groupedRevenue = weeklyrevenue
+                .GroupBy(order => order.CheckInDate)
                 .Select(g => new WeeklyRevenue
                 {
                     WeekStartDate = g.Key,
-                    Revenue = g.Sum(o => o.TotalPrice ?? 0)
+                    Revenue = g.Sum(order => order.NetRevenue)
                 })
                 .OrderBy(wr => wr.WeekStartDate)
-                .ToListAsync();
-            var allDays = Enumerable.Range(0, 7)
-                .Select(i => startOfWeek.AddDays(i))
                 .ToList();
 
-            var result = allDays.GroupJoin(weeklyRevenue,
+            var alldays = Enumerable.Range(0, 7)
+                .Select(i => startofweek.AddDays(i))
+                .ToList();
+
+            var result = alldays.GroupJoin(groupedRevenue,
                 day => day,
                 wr => wr.WeekStartDate,
                 (day, wrs) => wrs.FirstOrDefault() ?? new WeeklyRevenue { WeekStartDate = day, Revenue = 0 })
-                .OrderBy(wr => wr.WeekStartDate);
+                .OrderBy(wr => wr.WeekStartDate)
+                .ToList();
+
+            result.ForEach(r => r.Revenue = decimal.Parse(r.Revenue.ToString("F2")));
 
             return result;
         }
@@ -212,12 +235,13 @@ namespace Trek_Booking_Repository.Repositories
         public async Task<IEnumerable<QuarterlyRevenue>> getRevenueQuarterOfYearHotelBySupplierId(int supplierId, int year)
         {
             var revenue = await _dbContext.OrderHotelHeaders
-        .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckInDate.Value.Year == year)
+        .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true
+        && s.CheckInDate.Value.Year == year)
         .GroupBy(s => (s.CheckInDate.Value.Month - 1) / 3 + 1)
         .Select(g => new QuarterlyRevenue
         {
             Quarter = g.Key,
-            Revenue = g.Sum(s => s.TotalPrice ?? 0)
+            Revenue = g.Sum(t => (t.TotalPrice ?? 0) * 0.995m)
         })
         .ToListAsync();
 
@@ -228,6 +252,7 @@ namespace Trek_Booking_Repository.Repositories
                 var quarter = allQuarters.First(q => q.Quarter == quarterRevenue.Quarter);
                 quarter.Revenue = quarterRevenue.Revenue;
             }
+            allQuarters.ForEach(r => r.Revenue = decimal.Parse(r.Revenue.ToString("F2")));
 
             return allQuarters;
         }
@@ -244,10 +269,11 @@ namespace Trek_Booking_Repository.Repositories
                 .Select(g => new RevenueHotelDateRange
                 {
                     DateRange = g.Key,
-                    Revenue = g.Sum(o => o.TotalPrice ?? 0)
+                    Revenue = g.Sum(o => (o.TotalPrice ?? 0) * 0.995m)
                 })
                 .OrderBy(r => r.DateRange)
                 .ToListAsync();
+            revenue.ForEach(r => r.Revenue = decimal.Parse(r.Revenue.ToString("F2")));
 
             return revenue;
         }
@@ -255,12 +281,13 @@ namespace Trek_Booking_Repository.Repositories
         public async Task<IEnumerable<RevenueHotelMonthToYear>> getRevenueHotelMonthToYearBySupplierId(int supplierId, int year)
         {
             var revenue = await _dbContext.OrderHotelHeaders
-        .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckInDate.Value.Year == year)
+        .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true
+        && s.CheckInDate.Value.Year == year)
         .GroupBy(s => s.CheckInDate.Value.Month)
         .Select(g => new RevenueHotelMonthToYear
         {
             Month = g.Key,
-            Revenue = g.Sum(s => s.TotalPrice ?? 0)
+            Revenue = g.Sum(s => (s.TotalPrice ?? 0) * 0.995m)
         })
         .ToListAsync();
 
@@ -271,6 +298,7 @@ namespace Trek_Booking_Repository.Repositories
                 var month = allMonths.First(m => m.Month == monthRevenue.Month);
                 month.Revenue = monthRevenue.Revenue;
             }
+            allMonths.ForEach(r => r.Revenue = decimal.Parse(r.Revenue.ToString("F2")));
 
             return allMonths;
         }

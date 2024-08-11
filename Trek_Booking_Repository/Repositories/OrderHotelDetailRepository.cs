@@ -27,6 +27,7 @@ namespace Trek_Booking_Repository.Repositories
                                 on detail.HotelId equals hotel.HotelId
                                 where header.CheckInDate >= startDate && header.CheckInDate <= endDate
                                 && hotel.SupplierId == supplierId && header.Process == "Success"
+                                && header.Completed == true
                                 group detail by new { detail.RoomName, detail.HotelName } into g
                                 select new RoomDateRange
                                 {

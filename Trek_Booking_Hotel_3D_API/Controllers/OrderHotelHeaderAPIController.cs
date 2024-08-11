@@ -76,17 +76,17 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
             }
             return Ok(check);
         }
-        [HttpGet("/getRevenueYearBySupplierId")]
-        public async Task<IActionResult> getRevenueYearBySupplierId()
-        {
-            var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
-            var check = await _repository.getRevenueYearBySupplierId(supplierId.Value);
-            if (check == null)
-            {
-                return NotFound("Not Found");
-            }
-            return Ok(check);
-        }
+        //[HttpGet("/getRevenueYearBySupplierId")]
+        //public async Task<IActionResult> getRevenueYearBySupplierId()
+        //{
+        //    var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
+        //    var check = await _repository.getRevenueYearBySupplierId(supplierId.Value);
+        //    if (check == null)
+        //    {
+        //        return NotFound("Not Found");
+        //    }
+        //    return Ok(check);
+        //}
 
         [HttpGet("/countTotalOrderHotelBySupplierId")]
         public async Task<int> countTotalOrderHotelBySupplierId()
@@ -101,7 +101,7 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
         public async Task<double> getPercentChangeFromLastWeek()
         {
             var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
-            var check = await _repository.getPercentChangeFromLastWeek(supplierId.Value, DateTime.Now);
+            var check = await _repository.getPercentChangeFromLastWeek(supplierId.Value);
             return check;
         }
 
@@ -117,7 +117,7 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
         public async Task<decimal> getPercentChangeRevenueFromLastWeek()
         {
             var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
-            var check = await _repository.getPercentChangeRevenueFromLastWeek(supplierId.Value, DateTime.Now);
+            var check = await _repository.getPercentChangeRevenueFromLastWeek(supplierId.Value);
             return check;
         }
         [HttpGet("/getCurrentWeekRevenueHotelBySupplierId")]

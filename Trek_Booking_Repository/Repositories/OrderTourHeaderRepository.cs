@@ -78,15 +78,15 @@ namespace Trek_Booking_Repository.Repositories
             var startOfCurrentWeek = date.AddDays(-(int)date.DayOfWeek);
             var endOfCurrentWeek = startOfCurrentWeek.AddDays(7);
             var currentWeekRevenue = await _dbContext.OrderTourHeaders
-                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true  && s.TourOrderDate >= startOfCurrentWeek && s.TourOrderDate < endOfCurrentWeek)
-                .SumAsync(t => t.TotalPrice ?? 0);
+                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.TourOrderDate >= startOfCurrentWeek && s.TourOrderDate < endOfCurrentWeek)
+                .SumAsync(t => (t.TotalPrice ?? 0) * 0.995m);
 
             // Get the previous week's revenue
             var startOfPreviousWeek = startOfCurrentWeek.AddDays(-7);
             var endOfPreviousWeek = startOfCurrentWeek;
             var previousWeekRevenue = await _dbContext.OrderTourHeaders
-                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.TourOrderDate >= startOfPreviousWeek && s.TourOrderDate < endOfPreviousWeek)
-                .SumAsync(t => t.TotalPrice ?? 0);
+                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.TourOrderDate >= startOfPreviousWeek && s.TourOrderDate < endOfPreviousWeek)
+                .SumAsync(t => (t.TotalPrice ?? 0) * 0.995m);
 
             // Calculate the percentage change
             if (previousWeekRevenue == 0) return 0;
@@ -94,21 +94,20 @@ namespace Trek_Booking_Repository.Repositories
             var percentageChange = ((currentWeekRevenue - previousWeekRevenue) / previousWeekRevenue) * 100;
             return percentageChange;
         }
-
         public async Task<double> getPercentChangeTourFromLastWeek(int supplierId, DateTime date)
         {
             // Get the current week's count
             var startOfCurrentWeek = date.AddDays(-(int)date.DayOfWeek);
             var endOfCurrentWeek = startOfCurrentWeek.AddDays(7);
             var currentWeekCount = await _dbContext.OrderTourHeaders
-                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.TourOrderDate >= startOfCurrentWeek && s.TourOrderDate < endOfCurrentWeek)
+                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.TourOrderDate >= startOfCurrentWeek && s.TourOrderDate < endOfCurrentWeek)
                 .CountAsync();
 
             // Get the previous week's count
             var startOfPreviousWeek = startOfCurrentWeek.AddDays(-7);
             var endOfPreviousWeek = startOfCurrentWeek;
             var previousWeekCount = await _dbContext.OrderTourHeaders
-                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.TourOrderDate >= startOfPreviousWeek && s.TourOrderDate < endOfPreviousWeek)
+                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.TourOrderDate >= startOfPreviousWeek && s.TourOrderDate < endOfPreviousWeek)
                 .CountAsync();
 
             // Calculate the percentage change
@@ -138,44 +137,66 @@ namespace Trek_Booking_Repository.Repositories
         {
             var totalRevenue = await _dbContext.OrderTourHeaders
                 .Where(u => u.SupplierId == supplierId && u.Process == "Success" && u.Completed == true)
-                .SumAsync(t => t.TotalPrice ?? 0);
+                .SumAsync(t => (t.TotalPrice ?? 0) * 0.995m);
             return totalRevenue;
         }
 
         public async Task<IEnumerable<WeeklyRevenue>> getCurrentWeekRevenueTourBySupplierId(int supplierId)
         {
             var today = DateTime.Today;
-            var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
-            var endOfWeek = startOfWeek.AddDays(7);
+            var startofweek = today.AddDays(-(int)today.DayOfWeek);
+            var endofweek = startofweek.AddDays(7);
 
-            var weeklyRevenue = await _dbContext.OrderTourHeaders
-                .Where(o => o.SupplierId == supplierId
-                       && o.Process == "Success"
-                       && o.Completed == true
-                       && o.TourOrderDate.HasValue
-                       && o.TourOrderDate.Value >= startOfWeek
-                       && o.TourOrderDate.Value < endOfWeek)
-                .GroupBy(o => o.TourOrderDate.Value.Date)
+            var supplier = await _dbContext.suppliers
+                .Where(s => s.SupplierId == supplierId)
+                .Select(s => new { s.Commission })
+                .FirstOrDefaultAsync();
+
+            if (supplier == null)
+            {
+                throw new Exception("Supplier not found");
+            }
+
+            var weeklyrevenue = await _dbContext.OrderTourHeaders
+                .Where(order => order.SupplierId == supplierId
+                       && order.Process == "success"
+                       && order.Completed == true
+                       && order.TourOrderDate.HasValue
+                       && order.TourOrderDate.Value >= startofweek
+                       && order.TourOrderDate.Value < endofweek)
+                .Select(order => new
+                {
+                    CheckInDate = order.TourOrderDate.Value.Date,
+                    NetRevenue = (order.TotalPrice ?? 0) * 0.995m
+                })
+                .ToListAsync();
+
+            var groupedRevenue = weeklyrevenue
+                .GroupBy(order => order.CheckInDate)
                 .Select(g => new WeeklyRevenue
                 {
                     WeekStartDate = g.Key,
-                    Revenue = g.Sum(o => o.TotalPrice ?? 0)
+                    Revenue = g.Sum(order => order.NetRevenue)
                 })
                 .OrderBy(wr => wr.WeekStartDate)
-                .ToListAsync();
-            var allDays = Enumerable.Range(0, 7)
-                .Select(i => startOfWeek.AddDays(i))
                 .ToList();
 
-            var result = allDays.GroupJoin(weeklyRevenue,
+            var alldays = Enumerable.Range(0, 7)
+                .Select(i => startofweek.AddDays(i))
+                .ToList();
+
+            var result = alldays.GroupJoin(groupedRevenue,
                 day => day,
                 wr => wr.WeekStartDate,
                 (day, wrs) => wrs.FirstOrDefault() ?? new WeeklyRevenue { WeekStartDate = day, Revenue = 0 })
-                .OrderBy(wr => wr.WeekStartDate);
+                .OrderBy(wr => wr.WeekStartDate)
+                .ToList();
+
+            // Định dạng kết quả
+            result.ForEach(r => r.Revenue = decimal.Parse(r.Revenue.ToString("F2")));
 
             return result;
         }
-
         public async Task<IEnumerable<MonthlyRevenue>> getCurrentMonthOfYearRevenueTourBySupplierId(int supplierId)
         {
             var currentYear = DateTime.Today.Year;
@@ -218,7 +239,7 @@ namespace Trek_Booking_Repository.Repositories
         .Select(g => new QuarterlyRevenue
         {
             Quarter = g.Key,
-            Revenue = g.Sum(s => s.TotalPrice ?? 0)
+            Revenue = g.Sum(s => (s.TotalPrice ?? 0) * 0.995m)
         })
         .ToListAsync();
 
@@ -229,6 +250,8 @@ namespace Trek_Booking_Repository.Repositories
                 var quarter = allQuarters.First(q => q.Quarter == quarterRevenue.Quarter);
                 quarter.Revenue = quarterRevenue.Revenue;
             }
+            allQuarters.ForEach(r => r.Revenue = decimal.Parse(r.Revenue.ToString("F2")));
+
 
             return allQuarters;
         }
@@ -237,7 +260,7 @@ namespace Trek_Booking_Repository.Repositories
             var revenue = await _dbContext.OrderTourHeaders
                 .Where(o => o.SupplierId == supplierId
                        && o.Process == "Success"
-                        && o.Completed == true
+                       && o.Completed == true
                        && o.TourOrderDate.HasValue
                        && o.TourOrderDate.Value >= startDate
                        && o.TourOrderDate.Value <= endDate)
@@ -245,10 +268,11 @@ namespace Trek_Booking_Repository.Repositories
                 .Select(g => new RevenueTourDateRange
                 {
                     DateRange = g.Key,
-                    Revenue = g.Sum(o => o.TotalPrice ?? 0)
+                    Revenue = g.Sum(o => (o.TotalPrice ?? 0) * 0.995m)
                 })
                 .OrderBy(r => r.DateRange)
                 .ToListAsync();
+            revenue.ForEach(r => r.Revenue = decimal.Parse(r.Revenue.ToString("F2")));
 
             return revenue;
         }
@@ -256,12 +280,13 @@ namespace Trek_Booking_Repository.Repositories
         public async Task<IEnumerable<RevenueTourMonthToYear>> getRevenueTourMonthToYearBySupplierId(int supplierId, int year)
         {
             var revenue = await _dbContext.OrderTourHeaders
-        .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.TourOrderDate.Value.Year == year)
+        .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true
+        && s.TourOrderDate.Value.Year == year)
         .GroupBy(s => s.TourOrderDate.Value.Month)
         .Select(g => new RevenueTourMonthToYear
         {
             Month = g.Key,
-            Revenue = g.Sum(s => s.TotalPrice ?? 0)
+            Revenue = g.Sum(s => (s.TotalPrice ?? 0) * 0.995m)
         })
         .ToListAsync();
 
@@ -272,8 +297,10 @@ namespace Trek_Booking_Repository.Repositories
                 var month = allMonths.First(m => m.Month == monthRevenue.Month);
                 month.Revenue = monthRevenue.Revenue;
             }
+            allMonths.ForEach(r => r.Revenue = decimal.Parse(r.Revenue.ToString("F2")));
 
             return allMonths;
         }
+
     }
 }
