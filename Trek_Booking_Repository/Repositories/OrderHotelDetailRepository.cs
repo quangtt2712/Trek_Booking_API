@@ -46,15 +46,16 @@ namespace Trek_Booking_Repository.Repositories
             return check;
         }
 
-        public async Task<IEnumerable<TopRoom>> getTop5RoomInWeek(int supplierId, DateTime startDate, DateTime endDate)
+        public async Task<IEnumerable<TopRoom>> getTop5RoomInWeek(int supplierId, DateTime startOfWeek, DateTime endOfWeek)
         {
             var result = await (from detail in _dbContext.OrderHotelDetails
                                 join header in _dbContext.OrderHotelHeaders
                                 on detail.OrderHotelHeaderlId equals header.Id
                                 join hotel in _dbContext.hotels
                                 on detail.HotelId equals hotel.HotelId
-                                where header.CheckInDate >= startDate && header.CheckInDate <= endDate
+                                where header.CheckInDate >= startOfWeek && header.CheckInDate <= endOfWeek
                                 && hotel.SupplierId == supplierId && header.Process == "Success"
+                                && header.Completed == true
                                 group detail by new { detail.RoomId, detail.RoomName, detail.HotelName } into g
                                 select new TopRoom
                                 {
@@ -64,7 +65,7 @@ namespace Trek_Booking_Repository.Repositories
                                     OrderCount = g.Count()
                                 })
                            .OrderByDescending(o => o.OrderCount)
-                           .Take(5)
+                           // .Take(5)
                            .ToListAsync();
             return result;
         }

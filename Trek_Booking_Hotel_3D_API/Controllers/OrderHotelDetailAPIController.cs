@@ -44,10 +44,11 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
         [HttpGet("/getTop5RoomInWeek")]
         public async Task<IActionResult> getTop5RoomInWeek()
         {
-            var startDate = DateTime.Now.AddDays(-7);
-            var endDate = DateTime.Now;
+            var today = DateTime.Today;
+            var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+            var endOfWeek = startOfWeek.AddDays(7);
             var supplierId = _authMiddleWare.GetSupplierIdFromToken(HttpContext);
-            var check = await _repository.getTop5RoomInWeek(supplierId.Value, startDate, endDate);
+            var check = await _repository.getTop5RoomInWeek(supplierId.Value, startOfWeek, endOfWeek);
             if (check == null)
             {
                 return NotFound("Not Found");
