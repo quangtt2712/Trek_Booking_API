@@ -25,7 +25,7 @@ namespace Trek_Booking_Repository.Repositories
                                 on detail.OrderHotelHeaderlId equals header.Id
                                 join hotel in _dbContext.hotels
                                 on detail.HotelId equals hotel.HotelId
-                                where header.CheckInDate >= startDate && header.CheckInDate <= endDate
+                                where header.CheckOutDate >= startDate && header.CheckOutDate <= endDate
                                 && hotel.SupplierId == supplierId && header.Process == "Success"
                                 && header.Completed == true
                                 group detail by new { detail.RoomName, detail.HotelName } into g
@@ -54,7 +54,7 @@ namespace Trek_Booking_Repository.Repositories
                                 on detail.OrderHotelHeaderlId equals header.Id
                                 join hotel in _dbContext.hotels
                                 on detail.HotelId equals hotel.HotelId
-                                where header.CheckInDate >= startOfWeek && header.CheckInDate <= endOfWeek
+                                where header.CheckOutDate >= startOfWeek && header.CheckOutDate <= endOfWeek
                                 && hotel.SupplierId == supplierId && header.Process == "Success"
                                 && header.Completed == true
                                 group detail by new { detail.RoomId, detail.RoomName, detail.HotelName } into g

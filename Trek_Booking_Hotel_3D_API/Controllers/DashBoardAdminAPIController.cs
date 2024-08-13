@@ -90,8 +90,9 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
         [HttpGet("/getTopHotelOfSupplierInWeek")]
         public async Task<IActionResult> getTopHotelOfSupplierInWeek()
         {
-            var startDate = DateTime.Now.AddDays(-7);
-            var endDate = DateTime.Now;
+            var today = DateTime.Today;
+            var startDate = today.AddDays(-(int)today.DayOfWeek);
+            var endDate = startDate.AddDays(7);
             var check = await _repository.getTopHotelOfSupplierInWeek(startDate, endDate);
             if (!check.Any())
             { 
@@ -114,8 +115,9 @@ namespace Trek_Booking_Hotel_3D_API.Controllers
         [HttpGet("/getTopTourOfSupplierInWeek")]
         public async Task<IActionResult> getTopTourOfSupplierInWeek()
         {
-            var startDate = DateTime.Now.AddDays(-7);
-            var endDate = DateTime.Now;
+            var today = DateTime.Today;
+            var startDate = today.AddDays(-(int)today.DayOfWeek);
+            var endDate = startDate.AddDays(7);
             var check = await _repository.getTopTourOfSupplierInWeek(startDate, endDate);
             if (!check.Any())
             {

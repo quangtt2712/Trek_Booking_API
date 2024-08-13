@@ -89,7 +89,13 @@ namespace Trek_Booking_Repository.Repositories
                 .SumAsync(t => (t.TotalPrice ?? 0) * 0.995m);
 
             // Calculate the percentage change
-            if (previousWeekRevenue == 0) return 0;
+            if (previousWeekRevenue == 0)
+            {
+                if (currentWeekRevenue > 0)
+                    return 100; // Trả về 100% nếu tuần trước không có đơn hàng và tuần này có đơn hàng
+                else
+                    return 0; // Trả về 0% nếu cả hai tuần đều không có đơn hàng
+            }
 
             var percentageChange = ((currentWeekRevenue - previousWeekRevenue) / previousWeekRevenue) * 100;
             return percentageChange;
@@ -111,7 +117,13 @@ namespace Trek_Booking_Repository.Repositories
                 .CountAsync();
 
             // Calculate the percentage change
-            if (previousWeekCount == 0) return 0;
+            if (previousWeekCount == 0)
+            {
+                if (currentWeekCount > 0)
+                    return 100; // Trả về 100% nếu tuần trước không có đơn hàng và tuần này có đơn hàng
+                else
+                    return 0; // Trả về 0% nếu cả hai tuần đều không có đơn hàng
+            }
 
             var percentageChange = ((currentWeekCount - previousWeekCount) / (double)previousWeekCount) * 100;
             return percentageChange;

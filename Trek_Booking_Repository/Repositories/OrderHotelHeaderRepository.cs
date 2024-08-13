@@ -54,22 +54,29 @@ namespace Trek_Booking_Repository.Repositories
             var startOfCurrentWeek = date.AddDays(-(int)date.DayOfWeek);
             var endOfCurrentWeek = startOfCurrentWeek.AddDays(7);
             var currentWeekCount = await _dbContext.OrderHotelHeaders
-                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckInDate >= startOfCurrentWeek && s.CheckInDate < endOfCurrentWeek)
+                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckOutDate >= startOfCurrentWeek && s.CheckOutDate < endOfCurrentWeek)
                 .CountAsync();
 
             // Get the previous week's count
             var startOfPreviousWeek = startOfCurrentWeek.AddDays(-7);
             var endOfPreviousWeek = startOfCurrentWeek;
             var previousWeekCount = await _dbContext.OrderHotelHeaders
-                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckInDate >= startOfPreviousWeek && s.CheckInDate < endOfPreviousWeek)
+                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckOutDate >= startOfPreviousWeek && s.CheckOutDate < endOfPreviousWeek)
                 .CountAsync();
 
             // Calculate the percentage change
-            if (previousWeekCount == 0) return 0;
+            if (previousWeekCount == 0)
+            {
+                if (currentWeekCount > 0)
+                    return 100; // Trả về 100% nếu tuần trước không có đơn hàng và tuần này có đơn hàng
+                else
+                    return 0; // Trả về 0% nếu cả hai tuần đều không có đơn hàng
+            }
 
             var percentageChange = ((currentWeekCount - previousWeekCount) / (double)previousWeekCount) * 100;
             return percentageChange;
         }
+
 
         public async Task<decimal> getPercentChangeRevenueFromLastWeek(int supplierId)
         {
@@ -78,18 +85,24 @@ namespace Trek_Booking_Repository.Repositories
             var startOfCurrentWeek = date.AddDays(-(int)date.DayOfWeek);
             var endOfCurrentWeek = startOfCurrentWeek.AddDays(7);
             var currentWeekRevenue = await _dbContext.OrderHotelHeaders
-                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckInDate >= startOfCurrentWeek && s.CheckInDate < endOfCurrentWeek)
+                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckOutDate >= startOfCurrentWeek && s.CheckOutDate < endOfCurrentWeek)
                 .SumAsync(t => (t.TotalPrice ?? 0) * 0.995m);
 
             // Get the previous week's revenue
             var startOfPreviousWeek = startOfCurrentWeek.AddDays(-7);
             var endOfPreviousWeek = startOfCurrentWeek;
             var previousWeekRevenue = await _dbContext.OrderHotelHeaders
-                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckInDate >= startOfPreviousWeek && s.CheckInDate < endOfPreviousWeek)
+                .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckOutDate >= startOfPreviousWeek && s.CheckOutDate < endOfPreviousWeek)
                 .SumAsync(t => (t.TotalPrice ?? 0) * 0.995m);
 
             // Calculate the percentage change
-            if (previousWeekRevenue == 0) return 0;
+            if (previousWeekRevenue == 0)
+            {
+                if (currentWeekRevenue > 0)
+                    return 100; // Trả về 100% nếu tuần trước không có đơn hàng và tuần này có đơn hàng
+                else
+                    return 0; // Trả về 0% nếu cả hai tuần đều không có đơn hàng
+            }
 
             var percentageChange = ((currentWeekRevenue - previousWeekRevenue) / previousWeekRevenue) * 100;
             return percentageChange;
@@ -99,7 +112,7 @@ namespace Trek_Booking_Repository.Repositories
         {
             var annualRevenue = await _dbContext.OrderHotelHeaders
                 .Where(o => o.SupplierId == supplierId && o.Process == "Success" && o.Completed == true)
-                .GroupBy(o => o.CheckInDate.Value.Year)
+                .GroupBy(o => o.CheckOutDate.Value.Year)
                 .Select(g => new AnnualRevenue
                 {
                     Year = g.Key,
@@ -138,18 +151,18 @@ namespace Trek_Booking_Repository.Repositories
                 .Where(order => order.SupplierId == supplierid
                        && order.Process == "success"
                        && order.Completed == true
-                       && order.CheckInDate.HasValue
-                       && order.CheckInDate.Value >= startofweek
-                       && order.CheckInDate.Value < endofweek)
+                       && order.CheckOutDate.HasValue
+                       && order.CheckOutDate.Value >= startofweek
+                       && order.CheckOutDate.Value < endofweek)
                 .Select(order => new
                 {
-                    CheckInDate = order.CheckInDate.Value.Date,
+                    CheckOutDate = order.CheckOutDate.Value.Date,
                     NetRevenue = (order.TotalPrice ?? 0) * 0.995m
                 })
                 .ToListAsync();
 
             var groupedRevenue = weeklyrevenue
-                .GroupBy(order => order.CheckInDate)
+                .GroupBy(order => order.CheckOutDate)
                 .Select(g => new WeeklyRevenue
                 {
                     WeekStartDate = g.Key,
@@ -184,10 +197,10 @@ namespace Trek_Booking_Repository.Repositories
                 .Where(o => o.SupplierId == supplierId
                        && o.Process == "Success"
                        && o.Completed == true
-                       && o.CheckInDate.HasValue
-                       && o.CheckInDate.Value >= startOfYear
-                       && o.CheckInDate.Value < endOfYear)
-                .GroupBy(o => o.CheckInDate.Value.Month)
+                       && o.CheckOutDate.HasValue
+                       && o.CheckOutDate.Value >= startOfYear
+                       && o.CheckOutDate.Value < endOfYear)
+                .GroupBy(o => o.CheckOutDate.Value.Month)
                 .Select(g => new MonthlyRevenue
                 {
                     Month = g.Key,
@@ -236,8 +249,8 @@ namespace Trek_Booking_Repository.Repositories
         {
             var revenue = await _dbContext.OrderHotelHeaders
         .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true
-        && s.CheckInDate.Value.Year == year)
-        .GroupBy(s => (s.CheckInDate.Value.Month - 1) / 3 + 1)
+        && s.CheckOutDate.Value.Year == year)
+        .GroupBy(s => (s.CheckOutDate.Value.Month - 1) / 3 + 1)
         .Select(g => new QuarterlyRevenue
         {
             Quarter = g.Key,
@@ -262,10 +275,10 @@ namespace Trek_Booking_Repository.Repositories
                 .Where(o => o.SupplierId == supplierId
                        && o.Process == "Success"
                        && o.Completed == true
-                       && o.CheckInDate.HasValue
-                       && o.CheckInDate.Value >= startDate
-                       && o.CheckInDate.Value <= endDate)
-                .GroupBy(o => o.CheckInDate.Value.Date)
+                       && o.CheckOutDate.HasValue
+                       && o.CheckOutDate.Value >= startDate
+                       && o.CheckOutDate.Value <= endDate)
+                .GroupBy(o => o.CheckOutDate.Value.Date)
                 .Select(g => new RevenueHotelDateRange
                 {
                     DateRange = g.Key,
@@ -282,8 +295,8 @@ namespace Trek_Booking_Repository.Repositories
         {
             var revenue = await _dbContext.OrderHotelHeaders
         .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true
-        && s.CheckInDate.Value.Year == year)
-        .GroupBy(s => s.CheckInDate.Value.Month)
+        && s.CheckOutDate.Value.Year == year)
+        .GroupBy(s => s.CheckOutDate.Value.Month)
         .Select(g => new RevenueHotelMonthToYear
         {
             Month = g.Key,
