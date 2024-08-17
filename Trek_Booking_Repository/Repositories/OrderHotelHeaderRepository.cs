@@ -68,7 +68,7 @@ namespace Trek_Booking_Repository.Repositories
             if (previousWeekCount == 0)
             {
                 if (currentWeekCount > 0)
-                    return 100; // Trả về 100% nếu tuần trước không có đơn hàng và tuần này có đơn hàng
+                    return double.MaxValue; 
                 else
                     return 0; // Trả về 0% nếu cả hai tuần đều không có đơn hàng
             }
@@ -81,6 +81,7 @@ namespace Trek_Booking_Repository.Repositories
         public async Task<decimal> getPercentChangeRevenueFromLastWeek(int supplierId)
         {
             var date = DateTime.Now;
+
             // Get the current week's revenue
             var startOfCurrentWeek = date.AddDays(-(int)date.DayOfWeek);
             var endOfCurrentWeek = startOfCurrentWeek.AddDays(7);
@@ -95,18 +96,20 @@ namespace Trek_Booking_Repository.Repositories
                 .Where(s => s.SupplierId == supplierId && s.Process == "Success" && s.Completed == true && s.CheckOutDate >= startOfPreviousWeek && s.CheckOutDate < endOfPreviousWeek)
                 .SumAsync(t => (t.TotalPrice ?? 0) * 0.995m);
 
-            // Calculate the percentage change
+            // Handle edge cases for percentage change calculation
             if (previousWeekRevenue == 0)
             {
                 if (currentWeekRevenue > 0)
-                    return 100; // Trả về 100% nếu tuần trước không có đơn hàng và tuần này có đơn hàng
+                    return 999999999; // Đại diện cho sự tăng trưởng vô hạn
                 else
-                    return 0; // Trả về 0% nếu cả hai tuần đều không có đơn hàng
+                    return 0; // Trả về 0% nếu cả hai tuần đều không có doanh thu
             }
 
+            // Calculate the percentage change
             var percentageChange = ((currentWeekRevenue - previousWeekRevenue) / previousWeekRevenue) * 100;
             return percentageChange;
         }
+
 
         public async Task<IEnumerable<AnnualRevenue>> getRevenueYearBySupplierId(int supplierId)
         {

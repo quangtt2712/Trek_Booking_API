@@ -92,7 +92,7 @@ namespace Trek_Booking_Repository.Repositories
             if (previousWeekRevenue == 0)
             {
                 if (currentWeekRevenue > 0)
-                    return 100; // Trả về 100% nếu tuần trước không có đơn hàng và tuần này có đơn hàng
+                    return 999999999; // Trả về 100% nếu tuần trước không có đơn hàng và tuần này có đơn hàng
                 else
                     return 0; // Trả về 0% nếu cả hai tuần đều không có đơn hàng
             }
@@ -120,7 +120,7 @@ namespace Trek_Booking_Repository.Repositories
             if (previousWeekCount == 0)
             {
                 if (currentWeekCount > 0)
-                    return 100; // Trả về 100% nếu tuần trước không có đơn hàng và tuần này có đơn hàng
+                    return double.MaxValue; // Trả về 100% nếu tuần trước không có đơn hàng và tuần này có đơn hàng
                 else
                     return 0; // Trả về 0% nếu cả hai tuần đều không có đơn hàng
             }
